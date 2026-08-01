@@ -398,5 +398,22 @@ class TestValidateKeyTempFile(unittest.TestCase):
             self.assertEqual(list(Path(td).iterdir()), [])  # nothing left behind
 
 
+class TestGracefulInterrupt(unittest.TestCase):
+    """Ctrl-C must exit cleanly (code 130), not dump a traceback."""
+
+    def test_main_handles_keyboard_interrupt(self):
+        def _boom(args):
+            raise KeyboardInterrupt
+
+        with mock.patch.object(dl, "cmd_update", side_effect=_boom), \
+             mock.patch("builtins.print") as pr:
+            with self.assertRaises(SystemExit) as ctx:
+                dl.main(["update"])
+        self.assertEqual(ctx.exception.code, 130)
+        joined = " ".join(str(c) for c in pr.call_args_list)
+        self.assertIn("Interrupted", joined)
+        self.assertNotIn("Traceback", joined)
+
+
 if __name__ == "__main__":
     unittest.main()

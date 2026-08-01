@@ -597,7 +597,7 @@ def cmd_inspire(args):
     open_gallery()
 
 
-def main():
+def main(argv=None):
     parser = argparse.ArgumentParser(
         prog="picasso",
         description="Generate a searchable design-inspiration library from your screenshots.",
@@ -625,13 +625,17 @@ def main():
     p_inspire = sub.add_parser("inspire", help="open the gallery page in your browser")
     p_inspire.set_defaults(fn=cmd_inspire)
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     if not args.command:
         parser.print_help()
         print("\nQuick start:\n  picasso setup    # provider + API key + model (once)\n  picasso update   # analyze new screenshots\n  picasso inspire  # open the gallery")
         sys.exit(0)
 
-    args.fn(args)
+    try:
+        args.fn(args)
+    except KeyboardInterrupt:
+        print("\nInterrupted. Library saved so far — re-run update to continue.")
+        sys.exit(130)
 
 
 if __name__ == "__main__":
