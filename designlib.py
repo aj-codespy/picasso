@@ -28,6 +28,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 import urllib.error
 import urllib.request
@@ -158,7 +159,7 @@ def google_generate_content(api_key, model, image_path):
         from google import genai
         from google.genai import types
     except ImportError:
-        sys.exit("Google provider needs the official SDK.\n  Run:  pip install google-genai\n(inside the venv:  .venv/bin/pip install google-genai)")
+        sys.exit("Google provider needs the official SDK.\n  Run:  pip install google-genai\n(inside the project venv:  .venv/bin/pip  or  .venv\\Scripts\\pip.exe)")
 
     with open(image_path, "rb") as f:
         image_bytes = f.read()
@@ -331,7 +332,7 @@ def validate_key(provider, api_key, model):
     pixel = base64.b64decode(
         "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
     )
-    tmp = Path("/tmp") / "picasso_1x1.png"
+    tmp = Path(tempfile.gettempdir()) / "picasso_1x1.png"
     tmp.write_bytes(pixel)
     try:
         analyze_image(provider, api_key, model, str(tmp))

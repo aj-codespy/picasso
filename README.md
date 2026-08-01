@@ -40,6 +40,23 @@ picasso update
 The first `picasso` run creates its own Python virtual environment (`.venv`) —
 no manual Python setup.
 
+### Windows
+
+```bat
+:: 1. Install the `picasso` command (copies picasso.cmd into a PATH folder)
+install.bat
+
+:: 2. Open a NEW terminal, then:
+picasso setup
+picasso update
+```
+
+`install.bat` adds the folder to your user PATH via PowerShell (no truncation).
+Requires Python 3.9+ from [python.org](https://www.python.org/downloads/) —
+the launcher prefers the `py` launcher, so the Microsoft Store alias stub is
+not an issue. Everything else is identical to macOS/Linux. The full test suite
+runs on Windows too (`python -m unittest tests.test_designlib`).
+
 ## Providers
 
 Pick any one at `picasso setup` — the CLI remembers it.
@@ -94,8 +111,10 @@ picasso inspire    # just open the gallery page
 ```
 picasso/
 ├── designlib.py            # the CLI (stdlib-only; Google SDK optional)
-├── picasso                 # launcher — creates .venv on first run
-├── install.sh              # symlinks `picasso` into ~/.local/bin
+├── picasso                 # launcher (macOS/Linux) — creates .venv on first run
+├── picasso.cmd             # launcher (Windows) — same behavior
+├── install.sh              # symlinks `picasso` into ~/.local/bin (macOS/Linux)
+├── install.bat             # adds `picasso` to user PATH (Windows)
 ├── src/
 │   ├── index.html          # the gallery — self-contained, file:// works
 │   ├── screenshots/        # ← gallery mirror (hardlinks of your folder; never committed)
