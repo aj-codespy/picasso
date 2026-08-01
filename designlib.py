@@ -10,9 +10,13 @@ Drop screenshots into src/screenshots/, run `picasso update`, and the CLI:
   5. opens src/index.html in your browser
 
 Commands:
-    picasso setup     choose provider, enter API key, pick a model
+    picasso setup     choose provider, enter API key, pick model + screenshots folder
     picasso update    analyze new screenshots and refresh the gallery
     picasso inspire   just open the gallery page in your browser
+
+The screenshots folder is saved in ~/.designlib/config.json during setup —
+paste any folder path (e.g. ~/Desktop/shots); images are used in place and
+mirrored into src/screenshots/ so the offline gallery can find them.
 """
 import argparse
 import base64
@@ -21,6 +25,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -260,6 +265,67 @@ def pick_model(provider):
         sys.exit("Invalid model choice.")
 
 
+def resolve_shots_dir(flag, cfg):
+    """Screenshots folder, in precedence order: --screenshots flag > saved config > default."""
+    if flag:
+        return Path(flag).expanduser()
+    saved = cfg.get("screenshots_dir")
+    if saved:
+        return Path(saved).expanduser()
+    return SCREENSHOTS_DIR
+
+
+def pick_screenshots_dir():
+    """Ask where the user's screenshots live — paste a path or press Enter for the default.
+
+    The folder is used as-is (no copying into the project); update() mirrors
+    images into src/screenshots/ so the file:// gallery still finds them.
+    """
+    print("\n  Screenshots folder — where your image files already live.")
+    print(f"    Paste a folder path (e.g. ~/Desktop/shots), or press Enter for:\n    {SCREENSHOTS_DIR}")
+    choice = input("  Folder: ").strip()
+    if not choice:
+        return SCREENSHOTS_DIR
+    path = Path(choice).expanduser()
+    if not path.is_absolute():
+        path = (Path.cwd() / path).resolve()
+    if not path.exists():
+        print(f"    {path} doesn't exist yet — creating it.")
+        path.mkdir(parents=True, exist_ok=True)
+    elif not path.is_dir():
+        sys.exit(f"Not a folder: {path}")
+    return path
+
+
+def mirror_into_gallery(images, shots_dir):
+    """Make images from an external folder visible to the file:// gallery.
+
+    index.html loads images relative to src/, so every analyzed image must
+    exist under src/screenshots/. Hardlink first (no disk copy on the same
+    volume), fall back to a copy. Skips files that are already there with
+    identical content. No-op when the chosen folder IS the default.
+
+    Returns (n_linked, n_copied).
+    """
+    if shots_dir.resolve() == SCREENSHOTS_DIR.resolve():
+        return 0, 0
+    SCREENSHOTS_DIR.mkdir(parents=True, exist_ok=True)
+    linked = copied = 0
+    for img in images:
+        dest = SCREENSHOTS_DIR / img.name
+        if dest.exists() and sha256_file(dest) == sha256_file(img):
+            continue
+        if dest.exists():
+            dest.unlink()
+        try:
+            os.link(img, dest)
+            linked += 1
+        except OSError:
+            shutil.copy2(img, dest)
+            copied += 1
+    return linked, copied
+
+
 def validate_key(provider, api_key, model):
     """Live-test the key with a 1x1 PNG before saving it."""
     pixel = base64.b64decode(
@@ -297,9 +363,15 @@ def cmd_setup(args):
         if not validate_key(provider, api_key, model):
             sys.exit("Key or model not working — please check and re-run setup.")
 
-    save_config({"provider": provider, "api_key": api_key, "model": model})
+    shots_dir = args.screenshots and Path(args.screenshots).expanduser() or pick_screenshots_dir()
+    if not shots_dir.is_dir():
+        sys.exit(f"Not a folder: {shots_dir}")
+
+    save_config({"provider": provider, "api_key": api_key, "model": model,
+                 "screenshots_dir": str(shots_dir)})
     print(f"\nSaved. Provider: {provider} | Model: {model}")
-    print("Drop screenshots into src/screenshots/ and run:  picasso update")
+    print(f"Screenshots folder: {shots_dir}")
+    print("Put your screenshots there (png/jpg/jpeg/webp) and run:  picasso update")
 
 
 # ---------------------------------------------------------------------------
@@ -388,13 +460,17 @@ def cmd_update(args):
     if provider not in PROVIDERS:
         sys.exit(f"Unknown provider: {provider}")
 
-    shots_dir = Path(args.screenshots) if args.screenshots else SCREENSHOTS_DIR
+    shots_dir = resolve_shots_dir(args.screenshots, cfg)
+    if not shots_dir.exists():
+        print(f"Screenshots folder not found: {shots_dir}")
+        print("Run:  picasso setup   # to choose the folder, or pass --screenshots DIR")
+        sys.exit(1)
     images = sorted(
         [p for p in shots_dir.iterdir() if p.is_file() and p.suffix.lower() in IMAGE_EXTS]
     )
     if not images:
         print(f"No images found in {shots_dir}")
-        print("Drop your screenshots there (png/jpg/jpeg/webp), then re-run:  picasso update")
+        print("Put your screenshots there (png/jpg/jpeg/webp), then re-run:  picasso update")
         sys.exit(1)
 
     data = load_library()
@@ -439,6 +515,12 @@ def cmd_update(args):
 
     data["designs"] = designs
     save_library(data)
+
+    linked, copied = mirror_into_gallery(images, shots_dir)
+    if linked or copied:
+        print(f"  Mirrored {linked + copied} image(s) into src/screenshots/ for the gallery "
+              f"({linked} hardlinked, {copied} copied).")
+
     resync()
     print(f"\nDone: {new_count} analyzed, {kept} kept. Library now has {len(designs)} designs.")
     if not args.no_open:
@@ -464,10 +546,11 @@ def main():
     )
     sub = parser.add_subparsers(dest="command")
 
-    p_setup = sub.add_parser("setup", help="choose provider, enter API key, pick model")
+    p_setup = sub.add_parser("setup", help="choose provider, enter API key, pick model + screenshots folder")
     p_setup.add_argument("--provider", choices=list(PROVIDERS.keys()))
     p_setup.add_argument("--key")
     p_setup.add_argument("--model")
+    p_setup.add_argument("--screenshots", help="screenshots folder (interactive if omitted)")
     p_setup.add_argument("--skip-check", action="store_true", help="skip the live key test")
     p_setup.set_defaults(fn=cmd_setup)
 

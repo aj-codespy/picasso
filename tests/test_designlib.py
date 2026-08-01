@@ -12,6 +12,66 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import designlib as dl
 
 
+class TestProviderRegistry(unittest.TestCase):
+    def test_model_menu_has_all_models(self):
+        for spec in dl.PROVIDERS.values():
+            self.assertGreaterEqual(len(spec["models"]), 1)
+
+    def test_unique_model_ids(self):
+        seen = set()
+        for spec in dl.PROVIDERS.values():
+            for m in spec["models"]:
+                self.assertNotIn(m, seen)
+                seen.add(m)
+
+
+class TestShotsDir(unittest.TestCase):
+    def test_flag_wins_over_config(self):
+        cfg = {"screenshots_dir": "/tmp/config_dir"}
+        self.assertEqual(dl.resolve_shots_dir("/tmp/flag_dir", cfg), Path("/tmp/flag_dir"))
+
+    def test_config_wins_over_default(self):
+        cfg = {"screenshots_dir": "/tmp/config_dir"}
+        self.assertEqual(dl.resolve_shots_dir(None, cfg), Path("/tmp/config_dir"))
+
+    def test_default_when_nothing_saved(self):
+        self.assertEqual(dl.resolve_shots_dir(None, {}), dl.SCREENSHOTS_DIR)
+
+    def test_tilde_expansion(self):
+        cfg = {"screenshots_dir": "~/DesignShots"}
+        self.assertEqual(dl.resolve_shots_dir(None, cfg), Path.home() / "DesignShots")
+
+    def test_mirror_into_gallery(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            shots = root / "shots"
+            shots.mkdir()
+            gallery = root / "gallery"
+            (shots / "a.png").write_bytes(b"aaa")
+            (shots / "b.png").write_bytes(b"bbb")
+            images = [shots / "a.png", shots / "b.png"]
+
+            old = dl.SCREENSHOTS_DIR
+            dl.SCREENSHOTS_DIR = gallery
+            try:
+                linked, copied = dl.mirror_into_gallery(images, shots)
+                self.assertEqual((linked, copied), (2, 0))
+                self.assertTrue((gallery / "a.png").exists())
+                self.assertTrue((gallery / "b.png").exists())
+
+                # second run: nothing new to mirror
+                self.assertEqual(dl.mirror_into_gallery(images, shots), (0, 0))
+            finally:
+                dl.SCREENSHOTS_DIR = old
+
+    def test_mirror_noop_for_default_folder(self):
+        with tempfile.TemporaryDirectory() as td:
+            shots = Path(td) / "shots"
+            shots.mkdir()
+            (shots / "a.png").write_bytes(b"aaa")
+            self.assertEqual(dl.mirror_into_gallery([shots / "a.png"], dl.SCREENSHOTS_DIR), (0, 0))
+
+
 class TestCleanJson(unittest.TestCase):
     def test_bare_json(self):
         out = dl.clean_json('{"description": "hi", "tags": ["clean"]}')

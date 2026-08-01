@@ -53,12 +53,16 @@ Pick any one at `picasso setup` — the CLI remembers it.
 - **Keys are stored in `~/.designlib/config.json`** (outside the project) — they can
   never leak into a git commit. Environment variables `DESIGNLIB_PROVIDER`,
   `DESIGNLIB_API_KEY`, `DESIGNLIB_MODEL` override it.
+- **Your screenshots folder is also saved in that config** — paste any path during
+  `picasso setup` (e.g. `~/Desktop/shots`) and your images are used in place, no
+  copying into the project. `update` mirrors them into `src/screenshots/`
+  (hardlink first, copy fallback) so the offline gallery can still find them.
 - Your screenshots are sent **only** to the provider you chose.
 
 ## Commands
 
 ```bash
-picasso setup      # choose provider, enter API key, pick model (one time)
+picasso setup      # choose provider, enter API key, pick model + screenshots folder (one time)
 picasso update     # analyze NEW screenshots, refresh the gallery
 picasso inspire    # just open the gallery page
 ```
@@ -70,7 +74,7 @@ picasso inspire    # just open the gallery page
 | `--force` | re-analyze every image (e.g. after switching to a better model) |
 | `--prune` | drop library entries whose image files were deleted |
 | `--no-open` | don't open the browser at the end |
-| `--screenshots DIR` | scan a different folder |
+| `--screenshots DIR` | scan a different folder (overrides the one saved in setup) |
 | `--provider` / `--model` / `--key` | override the saved config for one run |
 
 ## The gallery
