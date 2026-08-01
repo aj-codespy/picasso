@@ -224,6 +224,7 @@ def load_config():
         try:
             cfg = json.loads(CONFIG_FILE.read_text())
         except Exception:
+            _recover_corrupt(CONFIG_FILE)
             cfg = {}
     # env overrides (DESIGNLIB_* or the provider's own key env)
     env_provider = os.environ.get("DESIGNLIB_PROVIDER")
@@ -236,6 +237,23 @@ def load_config():
     if env_key:
         cfg["api_key"] = env_key
     return cfg
+
+
+def _recover_corrupt(path):
+    """Back up an unreadable JSON file instead of silently discarding it.
+
+    Renames <path> to <path>.corrupt-<timestamp>, warns the user, and returns
+    the backup path (or None if the file couldn't be moved).
+    """
+    path = Path(path)
+    backup = path.with_name(f"{path.name}.corrupt-{int(time.time())}")
+    try:
+        os.replace(path, backup)
+        print(f"WARNING: {path} was unreadable — backed up to {backup} and starting fresh.")
+        return backup
+    except OSError:
+        print(f"WARNING: {path} was unreadable and could not be backed up — starting fresh.")
+        return None
 
 
 def save_config(cfg):
@@ -396,6 +414,7 @@ def load_library():
         try:
             return json.loads(JSON_FILE.read_text())
         except Exception:
+            _recover_corrupt(JSON_FILE)
             return {"designs": []}
     return {"designs": []}
 

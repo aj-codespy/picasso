@@ -10,6 +10,9 @@ src/screenshots/*.webp
 # local backup of a generated library
 data/library.backup.json
 
+# corrupt-file recovery backups (see designlib._recover_corrupt)
+data/*.corrupt-*
+
 # private planning docs (superseded by README)
 PRODUCT.md
 IDEA.md

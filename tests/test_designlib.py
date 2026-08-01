@@ -277,5 +277,38 @@ class TestAtomicSaves(unittest.TestCase):
                     ch.assert_called_once_with(dl.CONFIG_FILE, 0o600)
 
 
+class TestCorruptRecovery(unittest.TestCase):
+    def test_load_library_corrupt_backs_up_and_warns(self):
+        with tempfile.TemporaryDirectory() as td:
+            with mock.patch.object(dl, "JSON_FILE", Path(td) / "library.json"):
+                dl.JSON_FILE.write_text("{not json")
+                with mock.patch("builtins.print") as pr:
+                    out = dl.load_library()
+                self.assertEqual(out, {"designs": []})
+                self.assertTrue(pr.called)  # warned, not silent
+                backups = [p for p in Path(td).iterdir() if ".corrupt-" in p.name]
+                self.assertEqual(len(backups), 1)  # corrupt original preserved
+                self.assertEqual(backups[0].read_text(), "{not json")
+
+    def test_load_config_corrupt_backs_up_and_warns(self):
+        with tempfile.TemporaryDirectory() as td:
+            with mock.patch.object(dl, "CONFIG_FILE", Path(td) / "config.json"):
+                dl.CONFIG_FILE.write_text("nope")
+                with mock.patch("builtins.print") as pr:
+                    out = dl.load_config()
+                self.assertEqual(out, {})
+                self.assertTrue(pr.called)
+                backups = [p for p in Path(td).iterdir() if ".corrupt-" in p.name]
+                self.assertEqual(len(backups), 1)
+
+    def test_load_library_valid_file_untouched(self):
+        with tempfile.TemporaryDirectory() as td:
+            with mock.patch.object(dl, "JSON_FILE", Path(td) / "library.json"):
+                dl.JSON_FILE.write_text('{"designs": [{"path": "screenshots/a.png"}]}')
+                out = dl.load_library()
+                self.assertEqual(len(out["designs"]), 1)
+                self.assertEqual([p.name for p in Path(td).iterdir()], ["library.json"])
+
+
 if __name__ == "__main__":
     unittest.main()
