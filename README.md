@@ -9,7 +9,8 @@ hover to focus, click to enter the viewing room, filter by design vocabulary.
 
 ## How it works
 
-1. **You drop screenshots** into `src/screenshots/` (any `.png` / `.jpg` / `.jpeg` / `.webp`)
+1. **You point Picasso at your screenshots folder** — during setup you paste any path
+   (e.g. `~/Desktop/shots`); your images stay where they are, nothing is copied
 2. **You run** `picasso update`
 3. **Picasso scans only the new ones** — content-hash dedup means re-runs are instant,
    renames keep their analysis, and replaced files are detected and re-analyzed
@@ -28,10 +29,11 @@ git clone <this-repo-url> && cd picasso
 # 2. Install the `picasso` command (symlinks into ~/.local/bin)
 ./install.sh
 
-# 3. One-time setup: pick a provider, paste your API key, pick a model
+# 3. One-time setup: pick a provider, paste your API key, pick a model,
+#    and paste the path of your screenshots folder
 picasso setup
 
-# 4. Drop screenshots into src/screenshots/, then:
+# 4. Point Picasso at your screenshots (any .png / .jpg / .jpeg / .webp):
 picasso update
 ```
 
@@ -96,7 +98,7 @@ picasso/
 ├── install.sh              # symlinks `picasso` into ~/.local/bin
 ├── src/
 │   ├── index.html          # the gallery — self-contained, file:// works
-│   ├── screenshots/        # ← drop your screenshots here (never committed)
+│   ├── screenshots/        # ← gallery mirror (hardlinks of your folder; never committed)
 │   ├── data.js             # regenerated from the library
 │   └── sync_data.py        # library.json → data.js bridge
 ├── data/library.json       # the generated library
@@ -106,7 +108,7 @@ picasso/
 ## Development
 
 ```bash
-python3 -m unittest tests.test_designlib -v   # 14 tests, no network
+python3 -m unittest tests.test_designlib -v   # 24 tests, no network
 ```
 
 ## FAQ
