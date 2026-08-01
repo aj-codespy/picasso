@@ -1,0 +1,29 @@
+# Picasso — a searchable design-inspiration library
+# (generated data; screenshots are never committed)
+
+# user screenshots — never commit these
+src/screenshots/*.png
+src/screenshots/*.jpg
+src/screenshots/*.jpeg
+src/screenshots/*.webp
+
+# local backup of a generated library
+data/library.backup.json
+
+# private planning docs (superseded by README)
+PRODUCT.md
+IDEA.md
+
+# legacy scripts — superseded by designlib.py (hardcode a personal env path)
+src/add_design.py
+src/batch_analyze.py
+src/analyze.py
+src/nim_peek.py
+
+.env
+__pycache__/
+*.pyc
+.DS_Store
+.hermes/
+.venv/
+*.log

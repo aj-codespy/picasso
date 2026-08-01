@@ -1,0 +1,161 @@
+#!/usr/bin/env python3
+"""Unit tests for designlib.py — pure logic only, no network calls."""
+import json
+import os
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+import designlib as dl
+
+
+class TestCleanJson(unittest.TestCase):
+    def test_bare_json(self):
+        out = dl.clean_json('{"description": "hi", "tags": ["clean"]}')
+        self.assertEqual(out["tags"], ["clean"])
+
+    def test_fenced_json(self):
+        out = dl.clean_json('```json\n{"description": "hi"}\n```')
+        self.assertEqual(out["description"], "hi")
+
+    def test_prose_wrap(self):
+        out = dl.clean_json('Here you go:\n{"description": "x"}\nHope that helps')
+        self.assertEqual(out["description"], "x")
+
+    def test_no_json_raises(self):
+        with self.assertRaises(ValueError):
+            dl.clean_json("sorry, no json here")
+
+    def test_json_array_with_nested_braces(self):
+        out = dl.clean_json('{"description": "a {b} c", "tags": ["x"]}')
+        self.assertEqual(out["description"], "a {b} c")
+
+
+class TestSha256(unittest.TestCase):
+    def test_hash_roundtrip(self):
+        with tempfile.NamedTemporaryFile(delete=False) as f:
+            f.write(b"hello picasso")
+            path = f.name
+        try:
+            h1 = dl.sha256_file(path)
+            self.assertEqual(len(h1), 64)
+            with open(path, "rb") as f:
+                import hashlib
+                self.assertEqual(h1, hashlib.sha256(b"hello picasso").hexdigest())
+        finally:
+            os.unlink(path)
+
+
+class TestMime(unittest.TestCase):
+    def test_extensions(self):
+        self.assertEqual(dl.mime_for("a.png"), "image/png")
+        self.assertEqual(dl.mime_for("a.jpg"), "image/jpeg")
+        self.assertEqual(dl.mime_for("a.jpeg"), "image/jpeg")
+        self.assertEqual(dl.mime_for("a.webp"), "image/webp")
+        self.assertEqual(dl.mime_for("a.unknown"), "image/png")
+
+
+class TestProviders(unittest.TestCase):
+    def test_registry_complete(self):
+        self.assertEqual(set(dl.PROVIDERS.keys()), {"openai", "google", "nim", "openrouter"})
+        for name, spec in dl.PROVIDERS.items():
+            self.assertTrue(spec["label"])
+            self.assertTrue(spec["models"])
+            self.assertTrue(spec["key_hint"])
+            self.assertTrue(spec["env_key"])
+
+    def test_all_models_unique(self):
+        seen = set()
+        for spec in dl.PROVIDERS.values():
+            for m in spec["models"]:
+                self.assertNotIn(m, seen)
+                seen.add(m)
+
+
+class TestLibraryOps(unittest.TestCase):
+    def test_next_design_number(self):
+        designs = [{"path": "screenshots/design_01.png"}, {"path": "screenshots/design_02.png"}]
+        self.assertEqual(dl.next_design_number(designs), 3)
+        designs = []
+        self.assertEqual(dl.next_design_number(designs), 1)
+        designs = [{"path": "screenshots/design_05.png"}]
+        self.assertEqual(dl.next_design_number(designs), 1)
+
+
+class TestConfigEnv(unittest.TestCase):
+    def test_env_overrides(self):
+        old = dict(os.environ)
+        try:
+            # config file first
+            with tempfile.TemporaryDirectory() as td:
+                cfg_file = Path(td) / "config.json"
+                cfg_file.write_text(json.dumps({"provider": "nim", "api_key": "k", "model": "m"}))
+                dl.CONFIG_FILE = cfg_file
+                os.environ["DESIGNLIB_MODEL"] = "envmodel"
+                cfg = dl.load_config()
+                self.assertEqual(cfg["provider"], "nim")
+                self.assertEqual(cfg["model"], "envmodel")
+                self.assertEqual(cfg["api_key"], "k")
+        finally:
+            os.environ.clear()
+            os.environ.update(old)
+            dl.CONFIG_FILE = Path.home() / ".designlib" / "config.json"
+
+
+class TestPlanUpdates(unittest.TestCase):
+    def _make_img(self, td, name, content):
+        p = Path(td) / name
+        p.write_bytes(content)
+        return p
+
+    def test_new_unchanged_renamed_replaced(self):
+        with tempfile.TemporaryDirectory() as td:
+            a = self._make_img(td, "a.png", b"content-A")
+            b = self._make_img(td, "b.png", b"content-B")
+            c = self._make_img(td, "c.png", b"content-C")
+
+            designs = [
+                {"path": "screenshots/a.png", "sha256": dl.sha256_file(a), "analysis": {"tags": ["a"]}},
+            ]
+
+            # rename a.png -> a2.png (same content), keep b.png, add c.png
+            a2 = self._make_img(td, "a2.png", b"content-A")
+            images = [a2, b, c]
+
+            to_analyze, path_fixes, kept_names = dl.plan_updates(images, designs)
+
+            # c.png is new -> analyze; b.png new -> analyze; a2 renamed -> path fix
+            self.assertEqual(sorted(i.name for i, _, _ in to_analyze), ["b.png", "c.png"])
+            self.assertEqual(len(path_fixes), 1)
+            self.assertEqual(path_fixes[0][0]["path"], "screenshots/a.png")
+            self.assertEqual(path_fixes[0][1], "screenshots/a2.png")
+
+    def test_replaced_same_name_detected(self):
+        with tempfile.TemporaryDirectory() as td:
+            orig = self._make_img(td, "x.png", b"original")
+            designs = [
+                {"path": "screenshots/x.png", "sha256": dl.sha256_file(orig), "analysis": {}},
+            ]
+            changed = self._make_img(td, "x.png", b"CHANGED CONTENT")  # overwrite
+            to_analyze, path_fixes, kept = dl.plan_updates([changed], designs)
+            self.assertEqual(len(to_analyze), 1)  # must re-analyze
+            self.assertEqual(path_fixes, [])
+            self.assertEqual(kept, [])
+
+    def test_force_reanalyzes_everything(self):
+        with tempfile.TemporaryDirectory() as td:
+            a = self._make_img(td, "a.png", b"content-A")
+            designs = [
+                {"path": "screenshots/a.png", "sha256": dl.sha256_file(a), "analysis": {}},
+            ]
+            to_analyze, path_fixes, kept = dl.plan_updates([a], designs, force=True)
+            self.assertEqual(len(to_analyze), 1)
+            self.assertEqual(path_fixes, [])
+            self.assertEqual(kept, [])
+
+
+if __name__ == "__main__":
+    unittest.main()

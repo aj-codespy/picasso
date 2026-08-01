@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Library — Exhibition</title>
+<style>
+  /* ============================================================
+     DESIGN LIBRARY — light-theme exhibition world
+     Warm gallery-white walls, ink placards, Instrument Serif
+     catalog voice, brand orange #F97316 as the exhibition marker.
+     Hero carries a slow-scrolling marquee of the vocabulary.
+     ============================================================ */
+  @font-face {
+    font-family: 'Instrument Serif';
+    font-style: normal;
+    font-weight: 400;
+    src: url('fonts/instrument-serif-400.woff2') format('woff2');
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Instrument Serif';
+    font-style: italic;
+    font-weight: 400;
+    src: url('fonts/instrument-serif-400i.woff2') format('woff2');
+    font-display: swap;
+  }
+
+  :root {
+    --bg: #FAF7F2;              /* warm gallery wall */
+    --surface: #FFFFFF;         /* card ground */
+    --surface-soft: #F3EFE7;    /* raised ground / wells */
+    --ink: #1C1712;             /* primary text */
+    --ink-soft: #5C5548;        /* secondary text */
+    --faint: #756E62;           /* tertiary text (>=4.5:1 on bg) */
+    --line: #E5DFD2;            /* hairlines, borders */
+    --line-strong: #D3CCBB;     /* hover borders */
+    --placard: #131110;         /* ink placard on light wall */
+    --accent: #F97316;          /* exhibition marker (on dark only) */
+    --accent-deep: #C2500A;     /* orange text on light (>=4.4:1) */
+    --accent-soft: rgba(194, 80, 10, 0.10);
+    --serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Inter', 'Geist', 'Segoe UI', Roboto, sans-serif;
+    --mono: ui-monospace, 'SF Mono', Menlo, monospace;
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  ::selection { background: var(--accent); color: var(--bg); }
+  :focus-visible { outline: 2px solid var(--accent-deep); outline-offset: 2px; }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    padding: 92px 40px 0;
+    max-width: 1560px;
+    margin: 0 auto;
+  }
+  .hero::before {
+    /* warm skylight: soft cream gradient with a faint orange bloom */
+    content: "";
+    position: absolute;
+    inset: -140px -80px auto -80px;
+    height: 620px;
+    background:
+      radial-gradient(52% 46% at 74% 8%, rgba(249, 115, 22, 0.13), transparent 70%),
+      radial-gradient(40% 42% at 18% 22%, rgba(214, 178, 110, 0.16), transparent 72%),
+      linear-gradient(180deg, #FFFDF8 0%, var(--bg) 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .hero > * { position: relative; z-index: 1; }
+
+  /* fading pixel-dot grid — halftone field that melts away down the hero */
+  .hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 1.5px 1.5px, rgba(28, 23, 18, 0.5) 1.5px, transparent 0),
+      radial-gradient(circle at 1.5px 1.5px, rgba(28, 23, 18, 0.5) 1.5px, transparent 0);
+    background-size: 20px 20px, 20px 20px;
+    background-position: 0 0, 10px 10px;
+    -webkit-mask-image: radial-gradient(130% 110% at 50% -25%, #000 22%, transparent 92%);
+    mask-image: radial-gradient(130% 110% at 50% -25%, #000 22%, transparent 92%);
+    animation: dot-drift 120s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+  @keyframes dot-drift {
+    to { background-position: 20px 20px, 30px 30px; }
+  }
+
+  .hero-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .exhibition-title {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(3rem, 7vw, 5.4rem);
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    animation: rise .8s var(--ease) both;
+  }
+  .exhibition-title em {
+    font-style: italic;
+    color: var(--accent-deep);
+  }
+  .hero-count {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--faint);
+    white-space: nowrap;
+    animation: rise .8s var(--ease) .08s both;
+  }
+
+  .tagline {
+    margin-top: 26px;
+    max-width: 58ch;
+    font-family: var(--serif);
+    font-size: clamp(1.15rem, 2vw, 1.45rem);
+    line-height: 1.5;
+    color: var(--ink-soft);
+    animation: rise .8s var(--ease) .14s both;
+  }
+  .tagline strong { color: var(--ink); font-weight: 400; font-style: italic; }
+
+  /* stats row — real numbers, computed from the data */
+  .hero-stats {
+    display: flex;
+    gap: 44px;
+    margin-top: 40px;
+    flex-wrap: wrap;
+    animation: rise .8s var(--ease) .2s both;
+  }
+  .stat { display: flex; flex-direction: column; gap: 4px; }
+  .stat-num {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 2.4rem;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+
+  /* marquee of vocabulary */
+  .marquee {
+    margin: 64px -40px 0;
+    overflow: hidden;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 20px 0;
+    animation: rise .8s var(--ease) .28s both;
+  }
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    gap: 0;
+    animation: scroll 46s linear infinite;
+  }
+  .marquee:hover .marquee-track { animation-play-state: paused; }
+  .marquee-group {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .marquee-word {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.6rem;
+    color: var(--ink-soft);
+    padding: 0 26px;
+  }
+  .marquee-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+  @keyframes scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ---------- Catalog bar ---------- */
+  .catalog-bar {
+    max-width: 1560px;
+    margin: 0 auto;
+    padding: 38px 40px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .search-wrap { position: relative; flex: 1; max-width: 440px; }
+  .search-wrap svg {
+    position: absolute; left: 0; top: 50%;
+    transform: translateY(-50%);
+    width: 16px; height: 16px;
+    stroke: var(--faint); fill: none;
+    stroke-width: 1.5; stroke-linecap: round;
+    pointer-events: none;
+  }
+  .search-wrap input {
+    width: 100%;
+    padding: 10px 0 10px 26px;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--line-strong);
+    color: var(--ink);
+    font-size: 14px;
+    font-family: var(--sans);
+    outline: none;
+    border-radius: 0;
+    transition: border-color .2s;
+  }
+  .search-wrap input::placeholder { color: var(--faint); }
+  .search-wrap input:focus { border-bottom-color: var(--accent-deep); }
+
+  .view-toggle { display: flex; gap: 4px; }
+  .view-toggle button {
+    background: transparent;
+    border: none;
+    color: var(--faint);
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 8px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid transparent;
+    transition: color .15s, border-color .15s;
+  }
+  .view-toggle button:hover { color: var(--ink-soft); }
+  .view-toggle button.active { color: var(--ink); border-bottom-color: var(--accent-deep); }
+
+  /* ---------- Index (vocabulary directory) ---------- */
+  .index-section {
+    max-width: 1560px;
+    margin: 0 auto;
+    padding: 58px 40px 0;
+  }
+  .index-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+  }
+  .index-title {
+    font-family: var(--serif);
+    font-size: 1.7rem;
+    line-height: 1.1;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .index-sub {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+  .index {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .index-item {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    font-family: var(--sans);
+    font-size: 13px;
+    letter-spacing: 0.01em;
+    padding: 10px 18px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all .18s;
+    white-space: nowrap;
+    box-shadow: 0 1px 2px rgba(28, 23, 18, 0.04);
+  }
+  .index-item .idx-count {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--faint);
+  }
+  .index-item:hover {
+    border-color: var(--line-strong);
+    color: var(--ink);
+    transform: translateY(-1px);
+  }
+  .index-item.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--ink);
+    box-shadow: 0 4px 14px rgba(249, 115, 22, 0.28);
+  }
+  .index-item.active .idx-count { color: var(--ink); }
+
+  /* ---------- Walls (the collection) ---------- */
+  main { max-width: 1560px; margin: 0 auto; padding: 64px 40px 24px; }
+  /* wall: flex rows so a hovered work can physically take 2/3 of its row */
+  .grid {
+    display: flex;
+    flex-direction: column;
+    gap: 72px;
+  }
+  .grid.list { display: grid; grid-template-columns: 1fr; gap: 40px; }
+
+  .row { display: flex; gap: 40px; }
+  .row .work { flex: 1 1 0; min-width: 0; }
+
+  .work {
+    position: relative;
+    cursor: pointer;
+    z-index: 1;
+    animation: hang .7s var(--ease) backwards;
+    transition: flex-grow .5s var(--ease);
+  }
+  @keyframes hang {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* focus / recede — the hovered work grows to ~5/8 of its row (flex-grow 2
+     vs 0.6+0.6 for its row-mates); neighbors visibly cramp, nothing dims.
+     Height follows the 16:10 frame ratio, so the grown card is taller too. */
+  .grid:not(.list) .row:has(.work:hover) .work:hover {
+    flex-grow: 2;
+    z-index: 5;
+  }
+  .grid:not(.list) .row:has(.work:hover) .work:not(:hover) {
+    flex-grow: 0.6;
+  }
+
+  .frame {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    background: var(--surface-soft);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(28, 23, 18, 0.05), 0 8px 24px rgba(28, 23, 18, 0.06);
+    transition: border-color .25s ease, box-shadow .35s var(--ease);
+  }
+  .frame img {
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: top;
+    display: block;
+    transition: transform .6s var(--ease);
+  }
+  .work:hover .frame {
+    border-color: var(--line-strong);
+    box-shadow: 0 2px 4px rgba(28, 23, 18, 0.06), 0 34px 64px rgba(28, 23, 18, 0.18);
+  }
+  .work:hover .frame img { transform: scale(1.05); }
+
+  /* ink placard — overlaps the frame like a gallery label; unfolds on hover.
+     top is pinned to the RESTING position (resting height ~97px, overlaps
+     frame by 97-24 = 73px) so the label grows downward, never over the work. */
+  .placard {
+    position: absolute;
+    left: 20px;
+    top: calc(100% - 73px);
+    background: var(--placard);
+    color: var(--bg);
+    padding: 14px 18px 15px;
+    max-width: min(520px, calc(100% - 40px));
+    border-radius: 2px;
+    box-shadow: 0 16px 34px rgba(28, 23, 18, 0.30);
+    transition: box-shadow .35s var(--ease), transform .35s var(--ease);
+    z-index: 3;
+  }
+  .work:hover .placard {
+    transform: translateY(-6px);
+    box-shadow: 0 24px 52px rgba(28, 23, 18, 0.40);
+  }
+  .placard-no {
+    display: block;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.6rem;
+    line-height: 1;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .placard-title {
+    display: block;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--bg);
+    margin-bottom: 5px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .placard-meta {
+    display: block;
+    font-size: 11.5px;
+    color: #A9A294;
+    line-height: 1.45;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  /* the unfolded part of the label — description, full tags, components */
+  .placard-info {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows .5s var(--ease);
+  }
+  .work:hover .placard-info { grid-template-rows: 1fr; }
+  .grid.list .work:hover .placard-info { grid-template-rows: 1fr; }
+  .placard-info > div { overflow: hidden; min-height: 0; }
+  .pi-desc {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(250, 247, 242, 0.16);
+    font-family: var(--serif);
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--bg);
+  }
+  .pi-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 11px;
+  }
+  .pi-tags span {
+    font-size: 10px;
+    padding: 2.5px 8px;
+    border: 1px solid rgba(250, 247, 242, 0.25);
+    border-radius: 999px;
+    color: #C9C2B2;
+  }
+  .pi-comps {
+    margin-top: 11px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #A9A294;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  /* list view */
+  .grid.list .work {
+    display: grid;
+    grid-template-columns: minmax(240px, 400px) 1fr;
+    align-items: center;
+    gap: 0;
+    animation: none;
+  }
+  .grid.list .frame { aspect-ratio: 16 / 10; }
+  .grid.list .placard {
+    position: static;
+    left: auto; bottom: auto;
+    max-width: none;
+    margin-left: 44px;
+    align-self: center;
+    border-radius: 4px;
+  }
+  .grid.list .placard-no { font-size: 2.2rem; }
+
+  .empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 110px 0;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.5rem;
+    color: var(--faint);
+  }
+
+  /* ---------- How it works ---------- */
+  .how {
+    max-width: 1560px;
+    margin: 0 auto;
+    padding: 110px 40px 0;
+  }
+  .how-head {
+    font-family: var(--serif);
+    font-size: 1.9rem;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 34px;
+  }
+  .how-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+  .how-step {
+    border-top: 1px solid var(--line);
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .how-step .step-no {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.5rem;
+    color: var(--accent-deep);
+  }
+  .how-step h3 {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .how-step p {
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    max-width: 40ch;
+  }
+  .how-step code {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--surface-soft);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 2px 6px;
+    color: var(--ink);
+  }
+
+  /* ---------- Colophon ---------- */
+  footer {
+    border-top: 1px solid var(--line);
+    margin-top: 110px;
+    padding: 30px 40px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    max-width: 1560px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .colophon-word {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.15rem;
+    color: var(--ink);
+  }
+  .colophon-meta {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--faint);
+    line-height: 1.8;
+    text-align: right;
+  }
+
+  /* ---------- Detail: the viewing room ---------- */
+  .room-backdrop {
+    position: fixed; inset: 0; z-index: 100;
+    display: none;
+    background: rgba(28, 23, 18, 0.55);
+    align-items: center; justify-content: center;
+    padding: 36px;
+  }
+  .room-backdrop.open { display: flex; }
+  .room {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    max-width: 1180px;
+    width: 100%;
+    max-height: 92vh;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    box-shadow: 0 40px 90px rgba(28, 23, 18, 0.28);
+    animation: curtain .35s var(--ease) both;
+  }
+  @keyframes curtain {
+    from { opacity: 0; transform: translateY(14px) scale(0.99); }
+    to   { opacity: 1; transform: none; }
+  }
+  .room-img-wrap {
+    background: var(--surface-soft);
+    border-radius: 16px 0 0 16px;
+    display: flex; align-items: flex-start;
+    min-height: 320px;
+    overflow: hidden;
+  }
+  .room-img-wrap img {
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: top;
+    max-height: 92vh;
+  }
+  .room-close {
+    position: absolute; top: 20px; right: 20px; z-index: 5;
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    color: var(--ink);
+    cursor: pointer;
+    transition: all .18s;
+  }
+  .room-close:hover { border-color: var(--accent-deep); color: var(--accent-deep); }
+  .room-close svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; }
+
+  .placard-full { padding: 36px 36px 32px; display: flex; flex-direction: column; gap: 20px; }
+  .placard-full .p-no {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 2.2rem;
+    line-height: 1;
+    color: var(--accent-deep);
+  }
+  .placard-full h2 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 2rem;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+  .placard-full .p-desc {
+    font-family: var(--serif);
+    font-size: 1.08rem;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    max-width: 46ch;
+  }
+  .p-facts { display: flex; flex-direction: column; }
+  .p-fact {
+    display: grid;
+    grid-template-columns: 104px 1fr;
+    gap: 16px;
+    padding: 13px 0;
+    border-top: 1px solid var(--line);
+  }
+  .p-fact dt {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--faint);
+    padding-top: 2px;
+  }
+  .p-fact dd {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+  }
+  .p-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .p-tags span {
+    font-size: 11.5px;
+    padding: 4px 11px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--ink-soft);
+  }
+  .p-comps { display: flex; flex-wrap: wrap; gap: 6px; }
+  .p-comps span {
+    font-size: 11.5px;
+    padding: 4px 9px;
+    background: var(--surface-soft);
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    border-radius: 4px;
+  }
+  .p-ideas { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+  .p-ideas li {
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    padding-left: 18px;
+    position: relative;
+  }
+  .p-ideas li::before {
+    content: "";
+    position: absolute; left: 0; top: 9px;
+    width: 9px; height: 2px;
+    background: var(--accent-deep);
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 900px) {
+    .hero { padding: 60px 22px 0; }
+    .catalog-bar { padding: 30px 22px 0; }
+    .index-section { padding: 44px 22px 0; }
+    main { padding: 48px 22px 20px; }
+    .how { padding: 80px 22px 0; }
+    footer { padding: 26px 22px 32px; }
+    .grid { gap: 60px; }
+    .row { gap: 22px; }
+    .how-grid { grid-template-columns: 1fr; gap: 26px; }
+    .room { grid-template-columns: 1fr; }
+    .room-img-wrap { border-radius: 16px 16px 0 0; }
+    .room-img-wrap img { max-height: 40vh; }
+    .room-backdrop { padding: 20px; }
+    .placard-full { padding: 28px 24px 24px; }
+    .grid.list .work { grid-template-columns: 1fr; }
+    .grid.list .placard { margin: 22px 0 0; }
+    .marquee { margin: 48px -22px 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    .marquee-track { animation: none; }
+  }
+</style>
+</head>
+<body>
+<!--
+THESIS: An exhibition on light — the collection hangs on warm gallery-white walls; every work carries a catalog number and an ink placard, and the vocabulary scrolls past like the gallery's own announcement board. Refuses the template landing-page default.
+OWN-WORLD: Warm gallery-white walls (#FAF7F2) with white cards (#FFFFFF), hairline rules (#E5DFD2), ink placards (#131110) overlapping frame bottoms, Instrument Serif catalog voice, mono metadata, brand orange #F97316 as the exhibition marker (deep orange #C2500A for text on light). Hero carries a slow marquee of the design vocabulary.
+STORY: A visitor enters the light gallery, reads the vocabulary scrolling overhead, filters by design vocabulary, opens a work and reads its full placard: description, components, palette, ideas.
+FIRST VIEWPORT: Hero — "Design Library" in large serif with italic deep-orange "Library", tagline in serif, real stats (works / vocabularies / components), then the slow-scrolling marquee of vocabulary; below, the catalog bar (search, wall/catalogue) and the "Browse by vocabulary" index; the first row of hung works with ink placards.
+FORM: Light-theme exhibition — user-directed conversion from the dark museum; marquee chosen by the user from three hero options. Dials DV:3 MI:2 VD:3.
+FINISH: unreviewed and undocumented is unfinished; this build ends with review, the verdict, and DESIGN.md updated.
+-->
+
+<header class="hero">
+  <div class="hero-top">
+    <h1 class="exhibition-title">Design <em>Library</em></h1>
+    <span class="hero-count" id="count">0 works on view</span>
+  </div>
+  <p class="tagline">A curated exhibition of interface work — every screenshot analyzed by vision AI, indexed by <strong>design vocabulary</strong>.</p>
+  <div class="hero-stats">
+    <div class="stat"><span class="stat-num" id="statWorks">0</span><span class="stat-label">Works on view</span></div>
+    <div class="stat"><span class="stat-num" id="statVocab">0</span><span class="stat-label">Vocabularies</span></div>
+    <div class="stat"><span class="stat-num" id="statComps">0</span><span class="stat-label">Components found</span></div>
+  </div>
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track" id="marqueeTrack"></div>
+  </div>
+</header>
+
+<div class="catalog-bar">
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="10.5" cy="10.5" r="6.5"/>
+      <line x1="15.5" y1="15.5" x2="21" y2="21"/>
+    </svg>
+    <input type="text" id="search" placeholder="Search the collection…" autocomplete="off" aria-label="Search the collection">
+  </div>
+  <div class="view-toggle" id="viewToggle" role="group" aria-label="View">
+    <button data-view="grid" class="active" title="Wall view">Wall</button>
+    <button data-view="list" title="Catalogue view">Catalogue</button>
+  </div>
+</div>
+
+<section class="index-section" aria-label="Design vocabulary index">
+  <div class="index-head">
+    <h2 class="index-title">Browse by vocabulary</h2>
+    <span class="index-sub">The taxonomy of the collection</span>
+  </div>
+  <nav class="index" id="tagbar"></nav>
+</section>
+
+<main>
+  <div class="grid" id="grid"></div>
+</main>
+
+<section class="how" aria-label="How the exhibition is built">
+  <h2 class="how-head">How the collection grows</h2>
+  <div class="how-grid">
+    <div class="how-step">
+      <span class="step-no">No. 1</span>
+      <h3>Drop a screenshot</h3>
+      <p>Any interface screenshot, any name — into <code>src/screenshots/</code>. The library renames and numbers it for you.</p>
+    </div>
+    <div class="how-step">
+      <span class="step-no">No. 2</span>
+      <h3>Vision AI reads it</h3>
+      <p>One command — <code>python3 src/add_design.py</code> — sends it to NVIDIA NIM vision, which writes the description, tags, components, palette, and ideas.</p>
+    </div>
+    <div class="how-step">
+      <span class="step-no">No. 3</span>
+      <h3>It joins the wall</h3>
+      <p>The work is appended to the library JSON and appears in the gallery instantly. Offline, by double-click — no server, no cloud.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span class="colophon-word">Design Library</span>
+  <div class="colophon-meta">
+    An exhibition of interface works<br>
+    Vision analysis by NVIDIA NIM · Self-hosted Instrument Serif · No dependencies
+  </div>
+</footer>
+
+<div class="room-backdrop" id="modalBackdrop">
+  <div class="room" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <button class="room-close" id="modalClose" aria-label="Close">
+      <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+    </button>
+    <div class="room-img-wrap"><img id="modalImg" alt="Design preview"></div>
+    <article class="placard-full">
+      <span class="p-no" id="modalNo"></span>
+      <h2 id="modalTitle"></h2>
+      <p class="p-desc" id="modalDesc"></p>
+      <dl class="p-facts">
+        <div class="p-fact"><dt>Tags</dt><dd><div class="p-tags" id="modalTags"></div></dd></div>
+        <div class="p-fact"><dt>Components</dt><dd><div class="p-comps" id="modalComps"></div></dd></div>
+        <div class="p-fact"><dt>Palette</dt><dd id="modalPalette"></dd></div>
+        <div class="p-fact"><dt>Ideas</dt><dd><ul class="p-ideas" id="modalIdeas"></ul></dd></div>
+      </dl>
+    </article>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+  const DESIGNS = (typeof window.DESIGNS !== 'undefined') ? window.DESIGNS : [];
+  const grid = document.getElementById('grid');
+  const tagbar = document.getElementById('tagbar');
+  const searchInput = document.getElementById('search');
+  const countEl = document.getElementById('count');
+
+  let activeTag = 'all';
+  let searchQuery = '';
+  let view = 'grid';
+
+  // ---------- Helpers ----------
+  function designNum(file) {
+    const m = file.match(/design_(\d+)/);
+    return m ? parseInt(m[1], 10) : null;
+  }
+  function plateNo(file) {
+    const n = designNum(file);
+    return n !== null ? String(n).padStart(2, '0') : '';
+  }
+  function titleFromFile(file) {
+    const n = designNum(file);
+    return n !== null ? `Design ${n}` : file.replace(/\.png$/, '');
+  }
+  function metaLine(d) {
+    const comps = (d.components || []).slice(0, 3).join(' · ');
+    const n = (d.tags || []).length;
+    const tagWord = n === 1 ? 'tag' : 'tags';
+    return comps ? `${comps} — ${n} ${tagWord}` : `${n} ${tagWord}`;
+  }
+  function tagCounts() {
+    const map = new Map();
+    DESIGNS.forEach(d => (d.tags || []).forEach(t => map.set(t, (map.get(t) || 0) + 1)));
+    return map;
+  }
+  function allComponents() {
+    const set = new Set();
+    DESIGNS.forEach(d => (d.components || []).forEach(c => set.add(c)));
+    return set.size;
+  }
+  function matches(d) {
+    if (activeTag !== 'all' && !(d.tags || []).includes(activeTag)) return false;
+    if (searchQuery) {
+      const hay = [d.description, d.file, titleFromFile(d.file), (d.components || []).join(' '), (d.tags || []).join(' ')].join(' ').toLowerCase();
+      if (!hay.includes(searchQuery)) return false;
+    }
+    return true;
+  }
+
+  // ---------- Marquee ----------
+  function renderMarquee() {
+    const counts = tagCounts();
+    const words = Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 24)
+      .map(([t]) => t);
+    if (!words.length) return;
+    const group = () => words.map(w =>
+      `<span class="marquee-word">${w}</span><span class="marquee-dot"></span>`
+    ).join('');
+    document.getElementById('marqueeTrack').innerHTML = group() + group();
+  }
+
+  // ---------- Render ----------
+  function renderStats() {
+    document.getElementById('statWorks').textContent = DESIGNS.length;
+    document.getElementById('statVocab').textContent = tagCounts().size;
+    document.getElementById('statComps').textContent = allComponents();
+  }
+
+  function renderTags() {
+    const counts = tagCounts();
+    tagbar.innerHTML = '';
+    const mk = (label, tag, n) => {
+      const b = document.createElement('button');
+      b.className = 'index-item' + (activeTag === tag ? ' active' : '');
+      b.dataset.tag = tag;
+      b.innerHTML = `${label}<span class="idx-count">${n}</span>`;
+      tagbar.appendChild(b);
+    };
+    mk('All works', 'all', DESIGNS.length);
+    Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .forEach(([t, n]) => mk(t, t, n));
+  }
+
+  function render() {
+    const filtered = DESIGNS.filter(matches);
+    countEl.textContent = `${DESIGNS.length} ${DESIGNS.length === 1 ? 'work' : 'works'} on view`;
+    if (!DESIGNS.length) {
+      grid.innerHTML = '<div class="empty">The walls are empty — drop screenshots in and run the analyzer.</div>';
+      return;
+    }
+    if (!filtered.length) {
+      grid.innerHTML = '<div class="empty">Nothing in the collection matches this selection.</div>';
+      return;
+    }
+    grid.className = 'grid' + (view === 'list' ? ' list' : '');
+    grid.innerHTML = '';
+    // row grouping mirrors the responsive column math (3 cols desktop, 2 tablet)
+    const narrow = window.matchMedia('(max-width: 900px)').matches;
+    const minCol = narrow ? 280 : 340;
+    const gap = narrow ? 22 : 40;
+    const cols = Math.max(1, Math.floor((grid.clientWidth + gap) / (minCol + gap)));
+    let row = null;
+    filtered.forEach((d, i) => {
+      if (view !== 'list' && i % cols === 0) {
+        row = document.createElement('div');
+        row.className = 'row';
+        grid.appendChild(row);
+      }
+      const work = document.createElement('figure');
+      work.className = 'work';
+      work.style.animationDelay = `${Math.min(i * 40, 360)}ms`;
+      const desc = (d.description || '').replace(/["\\]/g, '');
+      const tagsAll = (d.tags || []).map(t => `<span>${t}</span>`).join('');
+      const compsAll = (d.components || []).slice(0, 6).join(' · ');
+      work.innerHTML = `
+        <div class="frame">
+          <img loading="lazy" src="screenshots/${d.file}" alt="${titleFromFile(d.file)} — UI screenshot">
+        </div>
+        <figcaption class="placard">
+          <span class="placard-no">No. ${plateNo(d.file)}</span>
+          <span class="placard-title">${titleFromFile(d.file)}</span>
+          <span class="placard-meta">${metaLine(d)}</span>
+          <div class="placard-info"><div>
+            ${desc ? `<p class="pi-desc">${desc}</p>` : ''}
+            ${tagsAll ? `<div class="pi-tags">${tagsAll}</div>` : ''}
+            ${compsAll ? `<div class="pi-comps">${compsAll}</div>` : ''}
+          </div></div>
+        </figcaption>`;
+      work.addEventListener('click', () => openModal(d));
+      work.tabIndex = 0;
+      work.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); work.click(); }
+      });
+      (row || grid).appendChild(work);
+    });
+  }
+
+  // ---------- Detail room ----------
+  const backdrop = document.getElementById('modalBackdrop');
+  const modal = document.getElementById('modal');
+
+  function openModal(d) {
+    document.getElementById('modalImg').src = 'screenshots/' + d.file;
+    document.getElementById('modalNo').textContent = 'No. ' + plateNo(d.file);
+    document.getElementById('modalTitle').textContent = titleFromFile(d.file);
+    document.getElementById('modalDesc').textContent = d.description || 'No description.';
+    document.getElementById('modalTags').innerHTML =
+      (d.tags || []).map(t => `<span>${t}</span>`).join('') || '<span>—</span>';
+    document.getElementById('modalComps').innerHTML =
+      (d.components || []).map(c => `<span>${c}</span>`).join('') || '<span>—</span>';
+    document.getElementById('modalPalette').textContent = d.palette || '—';
+    const ideas = d.ideas || [];
+    document.getElementById('modalIdeas').innerHTML =
+      ideas.map(i => `<li>${i}</li>`).join('') || '<li>No ideas captured yet.</li>';
+    backdrop.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    document.getElementById('modalClose').focus();
+  }
+  function closeModal() {
+    backdrop.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(); });
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  // ---------- Events ----------
+  tagbar.addEventListener('click', e => {
+    const b = e.target.closest('.index-item');
+    if (!b) return;
+    activeTag = b.dataset.tag;
+    renderTags(); render();
+  });
+  searchInput.addEventListener('input', e => {
+    searchQuery = e.target.value.trim().toLowerCase();
+    render();
+  });
+  document.getElementById('viewToggle').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    view = b.dataset.view;
+    document.querySelectorAll('#viewToggle button').forEach(x => x.classList.toggle('active', x === b));
+    render();
+  });
+
+  // ---------- Init ----------
+  renderStats();
+  renderMarquee();
+  renderTags();
+  render();
+</script>
+</body>
+</html>

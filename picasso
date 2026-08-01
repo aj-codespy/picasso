@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Picasso launcher — creates its own venv on first run, then runs the CLI.
+# Install once with:  ./install.sh   (symlinks picasso into ~/.local/bin)
+set -euo pipefail
+cd "$(dirname "$0")"
+
+PY="${PYTHON:-python3}"
+VENV=".venv"
+
+# A polluted PYTHONPATH (e.g. from a dev agent env) can shadow the venv's own
+# site-packages — neutralize it for the venv python and pip.
+export PYTHONPATH=
+
+if [ ! -x "$VENV/bin/python" ]; then
+    echo "Picasso first run: creating virtual environment ..."
+    "$PY" -m venv "$VENV"
+    # Some Pythons (e.g. Xcode CLT) don't bundle pip into venvs — bootstrap it.
+    if [ ! -x "$VENV/bin/pip" ] && [ ! -x "$VENV/bin/pip3" ]; then
+        "$VENV/bin/python" -m ensurepip --upgrade
+    fi
+    # The Google provider uses the official SDK; install it upfront so every
+    # provider works without extra steps. The other providers are stdlib-only.
+    "$VENV/bin/python" -m pip install --quiet --upgrade pip
+    "$VENV/bin/python" -m pip install --quiet google-genai
+    echo "Virtual environment ready."
+fi
+
+exec "$VENV/bin/python" designlib.py "$@"

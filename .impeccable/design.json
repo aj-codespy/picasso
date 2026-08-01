@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-01T11:05:00Z",
+  "title": "Design System: Design Library",
+  "extensions": {
+    "colorMeta": {
+      "bg": { "role": "neutral", "displayName": "Gallery Wall", "group": "wall", "usage": "Page background — warm gallery white" },
+      "surface": { "role": "neutral", "displayName": "Card Ground", "group": "surface", "usage": "Work cards, chips, modal room" },
+      "surface-soft": { "role": "neutral", "displayName": "Raised Ground", "group": "surface", "usage": "Image backdrops, component chips" },
+      "ink": { "role": "text", "displayName": "Ink", "group": "text", "usage": "Primary text" },
+      "ink-soft": { "role": "text", "displayName": "Ink Soft", "group": "text", "usage": "Secondary text" },
+      "faint": { "role": "text", "displayName": "Faint", "group": "text", "usage": "Tertiary text, labels, counts" },
+      "line": { "role": "neutral", "displayName": "Line", "group": "border", "usage": "Hairlines, borders" },
+      "line-strong": { "role": "neutral", "displayName": "Line Strong", "group": "border", "usage": "Hover borders, input rules" },
+      "placard": { "role": "neutral", "displayName": "Placard Ink", "group": "label", "usage": "The ink label on light walls" },
+      "accent": { "role": "accent", "displayName": "Exhibition Orange", "group": "accent", "usage": "Marker on dark surfaces only" },
+      "accent-deep": { "role": "accent", "displayName": "Accent Deep", "group": "accent", "usage": "Orange text on light grounds" }
+    },
+    "typographyMeta": {
+      "display": { "font": "Instrument Serif", "usage": "Masthead only", "size": "clamp(3rem, 7vw, 5.4rem)" },
+      "headline": { "font": "Instrument Serif", "usage": "Section heads, modal title", "size": "1.9rem–2rem" },
+      "plate": { "font": "Instrument Serif italic", "usage": "Catalog numbers, marquee words", "size": "1.6rem–2.2rem" },
+      "title": { "font": "System sans 600", "usage": "Placard titles", "size": "10.5px, 0.14em, uppercase" },
+      "body": { "font": "System sans 400", "usage": "Facts, ideas, meta", "size": "13px–13.5px" },
+      "label": { "font": "System mono", "usage": "Counts, toggles, colophon", "size": "10.5px, 0.16em, uppercase" }
+    },
+    "motionMeta": {
+      "easing": "cubic-bezier(0.22, 1, 0.36, 1)",
+      "rise": "0.8s entrance for hero sequence",
+      "hang": "0.7s staggered work entrance (i*40ms, cap 360ms)",
+      "marquee": "46s linear infinite, pauses on hover, 2 groups for seamless loop",
+      "curtain": "0.35s modal entrance",
+      "reduce": "prefers-reduced-motion collapses all animation"
+    },
+    "namedRules": [
+      "One Material Rule — the ink placard (#131110) exists only as physical labels, never a page surface",
+      "Serif-Does-Catalog Rule — Instrument Serif only for exhibition voice, never UI chrome",
+      "Orange-Deepens-on-Light Rule — full #F97316 only on dark surfaces; text on light uses #C2500A",
+      "Placard Overlap Rule — the 24px card overlap is the signature geometry, never broken"
+    ]
+  },
+  "colors": {
+    "bg": "#FAF7F2", "surface": "#FFFFFF", "surface-soft": "#F3EFE7",
+    "ink": "#1C1712", "ink-soft": "#5C5548", "faint": "#756E62",
+    "line": "#E5DFD2", "line-strong": "#D3CCBB", "placard": "#131110",
+    "accent": "#F97316", "accent-deep": "#C2500A"
+  },
+  "typography": {
+    "display": { "fontFamily": "Instrument Serif, Georgia, serif", "fontSize": "clamp(3rem, 7vw, 5.4rem)", "fontWeight": 400, "lineHeight": 1.0, "letterSpacing": "-0.03em" },
+    "headline": { "fontFamily": "Instrument Serif, Georgia, serif", "fontSize": "1.9rem", "fontWeight": 400, "lineHeight": 1.15, "letterSpacing": "-0.02em" },
+    "body": { "fontFamily": "-apple-system, Inter, Geist, Segoe UI, Roboto, sans-serif", "fontSize": "13px", "fontWeight": 400, "lineHeight": 1.6 },
+    "label": { "fontFamily": "ui-monospace, SF Mono, Menlo, monospace", "fontSize": "10.5px", "letterSpacing": "0.16em", "textTransform": "uppercase" },
+    "plate": { "fontFamily": "Instrument Serif, Georgia, serif", "fontSize": "1.6rem", "fontStyle": "italic", "lineHeight": 1 }
+  },
+  "rounded": { "card": "14px", "pill": "999px", "chip": "4px", "placard": "2px", "room": "16px" },
+  "shadows": {
+    "card": "0 1px 2px rgba(28,23,18,0.05), 0 8px 24px rgba(28,23,18,0.06)",
+    "card-hover": "0 1px 2px rgba(28,23,18,0.05), 0 18px 40px rgba(28,23,18,0.12)",
+    "placard": "0 16px 34px rgba(28,23,18,0.30)",
+    "chip-active": "0 4px 14px rgba(249,115,22,0.28)",
+    "room": "0 40px 90px rgba(28,23,18,0.28)"
+  },
+  "components": {
+    "hero": { "style": "Masthead 'Design Library' serif, italic deep-orange 'Library', mono count right; serif tagline; 3 real stats; vocabulary marquee below (24 top tags, italic serif words + orange dots, 46s scroll, aria-hidden, duplicated for seamless loop)" },
+    "search": { "style": "Underline-only input, 1px Line Strong rule, drawn SVG magnifier, focus underline Accent Deep" },
+    "view-toggle": { "style": "Text-only mono small caps, active = Ink + 1px Accent Deep underline" },
+    "index-chip": { "style": "Idle: white, 1px Line, pill, mono count Faint. Active: Orange bg, Ink text 6.48:1, orange glow" },
+    "work": { "style": "White card 14px radius 16:10, image cover top on Raised Ground; ink placard overlapping bottom-left by 24px: orange italic plate no, uppercase title, meta line" },
+    "room": { "style": "55% warm-dark backdrop; white room 16px radius, 1.35fr/1fr, 40px circle close; ruled fact rows: tag pills, comp chips, palette text, idea dashes" },
+    "how": { "style": "3-col (stack <900px); top hairline, italic serif 'No. N' deep orange, heading, 13px copy, code chips — factual pipeline only" },
+    "colophon": { "style": "Serif italic word left; mono small caps Faint right; 1px top hairline" }
+  }
+}
