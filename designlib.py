@@ -115,6 +115,18 @@ def sha256_file(path):
     return h.hexdigest()
 
 
+def atomic_write(path, text):
+    """Write text to path atomically: temp file in the same dir, then os.replace.
+
+    A crash mid-write can never corrupt the target — the old file survives.
+    os.replace is atomic on POSIX and NTFS (same directory, same volume).
+    """
+    path = Path(path)
+    tmp = path.with_name(f".{path.name}.tmp")
+    tmp.write_text(text)
+    os.replace(tmp, path)
+
+
 def mime_for(path):
     ext = Path(path).suffix.lower()
     return {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp"}.get(ext, "image/png")

@@ -2,10 +2,12 @@
 """Unit tests for designlib.py — pure logic only, no network calls."""
 import json
 import os
+import shutil
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -230,6 +232,31 @@ class TestPlanUpdates(unittest.TestCase):
             self.assertEqual(len(to_analyze), 1)
             self.assertEqual(path_fixes, [])
             self.assertEqual(kept, [])
+
+
+class TestAtomicWrite(unittest.TestCase):
+    def setUp(self):
+        self.dir = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.dir, ignore_errors=True)
+
+    def test_atomic_write_replaces_content(self):
+        f = self.dir / "a.json"
+        dl.atomic_write(f, '{"x": 1}')
+        self.assertEqual(json.loads(f.read_text()), {"x": 1})
+
+    def test_atomic_write_leaves_no_temp(self):
+        f = self.dir / "a.json"
+        dl.atomic_write(f, '{"x": 1}')
+        leftovers = [p.name for p in self.dir.iterdir() if p.name != "a.json"]
+        self.assertEqual(leftovers, [])
+
+    def test_atomic_write_preserves_existing_on_failure(self):
+        f = self.dir / "a.json"
+        dl.atomic_write(f, '{"x": 1}')
+        with mock.patch.object(Path, "write_text", side_effect=OSError("disk full")):
+            with self.assertRaises(OSError):
+                dl.atomic_write(f, '{"x": 2}')
+        self.assertEqual(json.loads(f.read_text()), {"x": 1})  # original intact
 
 
 if __name__ == "__main__":
