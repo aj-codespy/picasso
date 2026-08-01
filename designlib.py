@@ -29,6 +29,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -165,8 +166,12 @@ def chat_completion(url, api_key, model, image_path, timeout=180):
     return d["choices"][0]["message"]["content"]
 
 
-def google_generate_content(api_key, model, image_path):
-    """Official google-genai SDK call — verbatim pattern from Google's docs."""
+def google_generate_content(api_key, model, image_path, timeout=180):
+    """Official google-genai SDK call — verbatim pattern from Google's docs.
+
+    The SDK call runs in a daemon thread with a hard timeout so a hung
+    connection can never block the CLI forever.
+    """
     try:
         from google import genai
         from google.genai import types
@@ -176,19 +181,37 @@ def google_generate_content(api_key, model, image_path):
     with open(image_path, "rb") as f:
         image_bytes = f.read()
     client = genai.Client(api_key=api_key)
-    response = client.models.generate_content(
-        model=model,
-        contents=[
-            types.Part.from_bytes(data=image_bytes, mime_type=mime_for(image_path)),
-            PROMPT,
-        ],
-        config=types.GenerateContentConfig(
-            response_mime_type="application/json",
-            temperature=0.2,
-            max_output_tokens=1024,
-        ),
-    )
-    return response.text
+
+    def _call():
+        return client.models.generate_content(
+            model=model,
+            contents=[
+                types.Part.from_bytes(data=image_bytes, mime_type=mime_for(image_path)),
+                PROMPT,
+            ],
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                temperature=0.2,
+                max_output_tokens=1024,
+            ),
+        )
+
+    result = {}
+
+    def _run():
+        try:
+            result["ok"] = _call()
+        except Exception as e:  # surfaced on the main thread below
+            result["err"] = e
+
+    worker = threading.Thread(target=_run, daemon=True)
+    worker.start()
+    worker.join(timeout)
+    if worker.is_alive():
+        raise RuntimeError(f"Google SDK call timed out after {timeout}s")
+    if "err" in result:
+        raise result["err"]
+    return result["ok"].text
 
 
 def analyze_image(provider, api_key, model, image_path, retries=3):

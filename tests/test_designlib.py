@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """Unit tests for designlib.py — pure logic only, no network calls."""
+import base64
 import json
 import os
 import shutil
 import sys
 import tempfile
+import time
+import types as pyt
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -308,6 +311,53 @@ class TestCorruptRecovery(unittest.TestCase):
                 out = dl.load_library()
                 self.assertEqual(len(out["designs"]), 1)
                 self.assertEqual([p.name for p in Path(td).iterdir()], ["library.json"])
+
+
+class TestGoogleTimeout(unittest.TestCase):
+    """The Google SDK call must hit a hard timeout, never hang forever."""
+
+    PIXEL = base64.b64decode(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+    )
+
+    def _fake_sdk(self, hang=False, text="ok"):
+        google_mod = pyt.ModuleType("google")
+        genai_mod = pyt.ModuleType("google.genai")
+        types_mod = pyt.ModuleType("google.genai.types")
+        types_mod.Part = mock.MagicMock()
+        types_mod.Part.from_bytes.return_value = "PART"
+        types_mod.GenerateContentConfig = mock.MagicMock()
+        client = mock.MagicMock()
+        if hang:
+
+            def _hang(*a, **k):
+                time.sleep(30)  # simulate a hung network call
+
+            client.models.generate_content.side_effect = _hang
+        else:
+            resp = mock.MagicMock()
+            resp.text = text
+            client.models.generate_content.return_value = resp
+        genai_mod.Client = mock.MagicMock(return_value=client)
+        google_mod.genai = genai_mod
+        return {"google": google_mod, "google.genai": genai_mod, "google.genai.types": types_mod}
+
+    def test_google_call_times_out_instead_of_hanging(self):
+        with tempfile.TemporaryDirectory() as td:
+            img = Path(td) / "p.png"
+            img.write_bytes(self.PIXEL)
+            with mock.patch.dict(sys.modules, self._fake_sdk(hang=True)):
+                start = time.monotonic()
+                with self.assertRaises(RuntimeError):
+                    dl.google_generate_content("k", "m", str(img), timeout=0.3)
+                self.assertLess(time.monotonic() - start, 5)
+
+    def test_google_call_returns_text_on_success(self):
+        with tempfile.TemporaryDirectory() as td:
+            img = Path(td) / "p.png"
+            img.write_bytes(self.PIXEL)
+            with mock.patch.dict(sys.modules, self._fake_sdk(text="hello")):
+                self.assertEqual(dl.google_generate_content("k", "m", str(img), timeout=5), "hello")
 
 
 if __name__ == "__main__":
