@@ -44,10 +44,10 @@ Pick any one at `picasso setup` — the CLI remembers it.
 
 | Provider | Models | Key | Free tier? |
 |---|---|---|---|
-| **OpenAI** | `gpt-4o`, `gpt-4.1`, `gpt-4.1-mini` | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) | paid |
-| **Google** | `gemini-2.5-flash`, `gemini-2.5-pro` | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) | yes |
+| **OpenAI** | `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`, `gpt-5.5`, `gpt-5.5-pro`, `gpt-5.4`, `gpt-5.4-pro`, `gpt-5.4-mini`, `gpt-5.4-nano` | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) | paid |
+| **Google** | `gemini-3.6-flash`, `gemini-3.5-flash`, `gemini-3.5-flash-lite`, `gemini-3.1-pro` | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) | yes |
 | **NVIDIA NIM** | `nemotron-nano-12b-v2-vl` | [build.nvidia.com](https://build.nvidia.com) | yes |
-| **OpenRouter** | `gemini-2.5-flash:free`, `qwen2.5-vl-72b` | [openrouter.ai/keys](https://openrouter.ai/keys) | yes |
+| **OpenRouter** | `google/gemini-2.5-flash:free`, `qwen/qwen2.5-vl-72b-instruct` | [openrouter.ai/keys](https://openrouter.ai/keys) | yes |
 
 - **Google** uses Google's official `google-genai` SDK (installed automatically in the venv).
 - **Keys are stored in `~/.designlib/config.json`** (outside the project) — they can

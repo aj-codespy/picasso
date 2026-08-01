@@ -64,14 +64,21 @@ PROVIDERS = {
         "label": "OpenAI (GPT)",
         "url": "https://api.openai.com/v1/chat/completions",
         "env_key": "OPENAI_API_KEY",
-        "models": ["gpt-4o", "gpt-4.1", "gpt-4.1-mini"],
+        "models": [
+            "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna",
+            "gpt-5.5", "gpt-5.5-pro",
+            "gpt-5.4", "gpt-5.4-pro", "gpt-5.4-mini", "gpt-5.4-nano",
+        ],
         "key_hint": "https://platform.openai.com/api-keys",
     },
     "google": {
         "label": "Google (Gemini)",
         "url": None,  # uses the official google-genai SDK
         "env_key": "GEMINI_API_KEY",
-        "models": ["gemini-2.5-flash", "gemini-2.5-pro"],
+        "models": [
+            "gemini-3.6-flash", "gemini-3.5-flash", "gemini-3.5-flash-lite",
+            "gemini-3.1-pro",
+        ],
         "key_hint": "https://aistudio.google.com/apikey",
     },
     "nim": {
