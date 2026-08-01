@@ -36,6 +36,8 @@ import urllib.request
 import webbrowser
 from pathlib import Path
 
+VERSION = "1.0.0"
+
 ROOT = Path(__file__).resolve().parent
 SCREENSHOTS_DIR = ROOT / "src" / "screenshots"
 JSON_FILE = ROOT / "data" / "library.json"
@@ -614,6 +616,7 @@ def main(argv=None):
         prog="picasso",
         description="Generate a searchable design-inspiration library from your screenshots.",
     )
+    parser.add_argument("--version", action="version", version=f"%(prog)s {VERSION}")
     sub = parser.add_subparsers(dest="command")
 
     p_setup = sub.add_parser("setup", help="choose provider, enter API key, pick model + screenshots folder")

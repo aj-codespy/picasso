@@ -442,5 +442,20 @@ class TestResyncFailure(unittest.TestCase):
             run.assert_not_called()
 
 
+class TestVersionFlag(unittest.TestCase):
+    """picasso --version prints the version and exits 0."""
+
+    def test_version_flag_prints_version(self):
+        import io
+        from contextlib import redirect_stdout
+
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            with self.assertRaises(SystemExit) as ctx:
+                dl.main(["--version"])
+        self.assertEqual(ctx.exception.code, 0)
+        self.assertIn(dl.VERSION, buf.getvalue())
+
+
 if __name__ == "__main__":
     unittest.main()
