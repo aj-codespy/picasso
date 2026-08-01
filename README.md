@@ -1,5 +1,7 @@
 # Picasso — your personal design-inspiration library
 
+*Version 1.0.0 — `picasso --version`*
+
 Drop screenshots into a folder, run one command, and Picasso turns them into a
 beautiful, searchable design gallery — every screenshot analyzed by a vision
 model for its style, components, palette, and ideas. Browse it like a museum:
@@ -127,7 +129,7 @@ picasso/
 ## Development
 
 ```bash
-python3 -m unittest tests.test_designlib -v   # 24 tests, no network
+python3 -m unittest tests.test_designlib -v   # 41 tests, no network
 ```
 
 ## FAQ
