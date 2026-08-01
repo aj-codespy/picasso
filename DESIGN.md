@@ -187,7 +187,7 @@ Calm and authored, all `cubic-bezier(0.22, 1, 0.36, 1)`:
 ### Viewing Room (modal)
 - **Backdrop:** 55% warm-dark curtain over the page.
 - **Room:** Card Ground, 1px Line border, 16px radius, two columns (1.35fr image / 1fr placard), stacking below 900px. Close: 40px circle, white, border Line, hover → Accent Deep.
-- **Placard Full:** deep-orange italic plate number, serif headline, serif description (max 46ch), then ruled fact rows (Tags as pills, Components as 4px chips, Palette as text, Ideas as list with 2px deep-orange dashes). Hairline rules divide facts.
+- **Placard Full:** deep-orange italic plate number, serif headline, serif description (max 46ch), then ruled fact rows (Tags as pills, Components as 4px chips, Palette as text, Ideas as list with 2px deep-orange dashes). Hairline rules divide facts. Modal fact rows (in order): Tags, Components, Layout, Hero, Typography, Palette, Use it for, Ideas — each falls back to "—" when the model returned null/empty.
 
 ### How It Works
 - **Style:** three columns (stack below 900px). Each step: top hairline, italic serif "No. N" in Accent Deep, sans heading, 13px description, inline `code` chips for commands. All claims factual — the actual pipeline (drop → `picasso update` → joins the wall).

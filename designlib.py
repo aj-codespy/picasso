@@ -40,14 +40,18 @@ CONFIG_FILE = CONFIG_DIR / "config.json"
 IMAGE_EXTS = (".png", ".jpg", ".jpeg", ".webp")
 CHUNK = 1024 * 1024
 
-PROMPT = """You are a design curator building a design inspiration library. Analyze this UI screenshot in detail.
+PROMPT = """You are a design curator building a design inspiration library. Analyze this UI screenshot in detail — the page structure, the hero, the components, and where this design pattern would be used.
 
-Respond with a JSON object with EXACTLY these keys:
-- "description": 1-2 sentence description of the design style and intent
+Respond with a JSON object with EXACTLY these keys (no other keys):
+- "description": 1-2 sentences on the overall design style and intent (e.g. "A calm SaaS landing page that pairs warm cream surfaces with a burnt-orange accent; editorial spacing gives it a premium, trust-first feel.")
+- "layout": the page structure in one line — nav position, hero treatment, section rhythm (e.g. "Sticky top nav, full-bleed hero, 3-column feature grid, split CTA band, 5-column footer")
+- "hero": what the hero section does — headline pattern, subcopy role, CTA structure, visual treatment; use null when there is no hero
+- "components": every UI element you can identify (navbar, hero, sidebar, card-grid, pricing-table, testimonial, product-gallery, form, search-bar, stats, logo, CTA-button, chat-widget, dashboard-chart, table, avatar, breadcrumb, modal, carousel, accordion, badge, tooltip, tabs, pagination, footer, ...). List 6-12 items.
+- "palette": colors and tones with approximate hex where helpful (e.g. "warm cream #FAF7F2 base, deep charcoal #131110 text, burnt-orange #F97316 accent on dark surfaces")
+- "typography": font character — style, weight contrast, size rhythm (e.g. "serif display headlines with sans body; strong weight contrast; generous line-height")
 - "tags": 5-8 design jargon tags, chosen from: minimalist, brutalist, premium, editorial, clean, dark-mode, saas, e-commerce, neumorphic, glassmorphism, bold-typography, monochrome, vibrant, playful, corporate, luxury, tech, dashboard, mobile-first, landing-page, portfolio, ai-saas, gradient, flat-design, skeuomorphic, retro, futuristic, material, apple-style, stripe-style, linear-style, notch, sidebar, bento, glass, 3d, illustration-heavy, typographic, spaced-out, dense, airy, warm, cool, earthy, pastel, neon, gold-accent
-- "components": UI elements identified, e.g. hero, navbar, sidebar, card-grid, footer, pricing-table, testimonial, product-gallery, form, search-bar, stats, logo, CTA-button, chat-widget, dashboard-chart, table, avatar, breadcrumb, modal, carousel, accordion, badge, tooltip
-- "palette": brief description of colors/tones used (e.g. "warm cream background with deep charcoal text and burnt-orange accent")
-- "ideas": 2-3 short creative ideas on what this design could inspire or be used for
+- "usage": 2-3 concrete contexts where this design could be used, each a short phrase starting with a verb (e.g. "Use for a SaaS landing page that needs to feel trustworthy", "Use as the shell for a B2B dashboard", "Use for an onboarding flow that should feel light")
+- "ideas": 2-3 short creative ideas on what this design could inspire
 
 Output ONLY the JSON object. No markdown fences, no commentary."""
 

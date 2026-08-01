@@ -16,9 +16,13 @@ def main():
         entry = {
             "file": d.get("path", d.get("file", "")).replace("screenshots/", ""),
             "description": d.get("analysis", {}).get("description", d.get("description", "")),
+            "layout": d.get("analysis", {}).get("layout", ""),
+            "hero": d.get("analysis", {}).get("hero", ""),
+            "typography": d.get("analysis", {}).get("typography", ""),
             "tags": d.get("analysis", {}).get("tags", d.get("tags", [])),
             "components": d.get("analysis", {}).get("components", d.get("components", [])),
             "palette": d.get("analysis", {}).get("palette", d.get("palette", "")),
+            "usage": d.get("analysis", {}).get("usage", []),
             "ideas": d.get("analysis", {}).get("ideas", d.get("ideas", [])),
         }
         if entry["file"]:

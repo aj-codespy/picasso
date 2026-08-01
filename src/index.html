@@ -837,7 +837,11 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
       <dl class="p-facts">
         <div class="p-fact"><dt>Tags</dt><dd><div class="p-tags" id="modalTags"></div></dd></div>
         <div class="p-fact"><dt>Components</dt><dd><div class="p-comps" id="modalComps"></div></dd></div>
+        <div class="p-fact"><dt>Layout</dt><dd id="modalLayout"></dd></div>
+        <div class="p-fact"><dt>Hero</dt><dd id="modalHero"></dd></div>
+        <div class="p-fact"><dt>Typography</dt><dd id="modalType"></dd></div>
         <div class="p-fact"><dt>Palette</dt><dd id="modalPalette"></dd></div>
+        <div class="p-fact"><dt>Use it for</dt><dd><ul class="p-ideas" id="modalUsage"></ul></dd></div>
         <div class="p-fact"><dt>Ideas</dt><dd><ul class="p-ideas" id="modalIdeas"></ul></dd></div>
       </dl>
     </article>
@@ -998,7 +1002,13 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
       (d.tags || []).map(t => `<span>${t}</span>`).join('') || '<span>—</span>';
     document.getElementById('modalComps').innerHTML =
       (d.components || []).map(c => `<span>${c}</span>`).join('') || '<span>—</span>';
+    document.getElementById('modalLayout').textContent = d.layout || '—';
+    document.getElementById('modalHero').textContent = d.hero || '—';
+    document.getElementById('modalType').textContent = d.typography || '—';
     document.getElementById('modalPalette').textContent = d.palette || '—';
+    const usage = d.usage || [];
+    document.getElementById('modalUsage').innerHTML =
+      usage.map(i => `<li>${i}</li>`).join('') || '<li>No use cases captured yet.</li>';
     const ideas = d.ideas || [];
     document.getElementById('modalIdeas').innerHTML =
       ideas.map(i => `<li>${i}</li>`).join('') || '<li>No ideas captured yet.</li>';

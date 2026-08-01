@@ -105,6 +105,21 @@ class TestConfigEnv(unittest.TestCase):
             dl.CONFIG_FILE = Path.home() / ".designlib" / "config.json"
 
 
+class TestPromptSchema(unittest.TestCase):
+    REQUIRED_KEYS = ["description", "layout", "hero", "components", "palette",
+                     "typography", "tags", "usage", "ideas"]
+
+    def test_prompt_specifies_all_keys(self):
+        for key in self.REQUIRED_KEYS:
+            self.assertIn(f'"{key}"', dl.PROMPT, f"PROMPT missing key: {key}")
+
+    def test_prompt_specifies_key_semantics(self):
+        # each key must have an instruction beyond the bare name
+        for key in self.REQUIRED_KEYS:
+            line = next(l for l in dl.PROMPT.splitlines() if f'"{key}"' in l)
+            self.assertGreater(len(line), len(key) + 12, f"key {key} lacks a spec")
+
+
 class TestPlanUpdates(unittest.TestCase):
     def _make_img(self, td, name, content):
         p = Path(td) / name

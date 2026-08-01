@@ -13,8 +13,9 @@ hover to focus, click to enter the viewing room, filter by design vocabulary.
 2. **You run** `picasso update`
 3. **Picasso scans only the new ones** — content-hash dedup means re-runs are instant,
    renames keep their analysis, and replaced files are detected and re-analyzed
-4. **A vision model writes the library** — `data/library.json` with description,
-   tags, components, palette, and ideas per screenshot
+4. **A vision model writes the library** — `data/library.json` with a full curator read per
+   screenshot: description, layout structure, hero analysis, components, palette (with hex),
+   typography, design-jargon tags, **use cases** ("use for a…"), and creative ideas
 5. **Your gallery opens in the browser** — double-click `src/index.html` anytime,
    works fully offline (fonts bundled, no server needed)
 
