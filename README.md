@@ -22,7 +22,7 @@ hover to focus, click to enter the viewing room, filter by design vocabulary.
 
 ```bash
 # 1. Get the code
-git clone <this-repo-url> && cd picasso
+git clone https://github.com/aj-codespy/picasso && cd picasso
 
 # 2. Install the `picasso` command (symlinks into ~/.local/bin)
 ./install.sh
