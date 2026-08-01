@@ -360,5 +360,43 @@ class TestGoogleTimeout(unittest.TestCase):
                 self.assertEqual(dl.google_generate_content("k", "m", str(img), timeout=5), "hello")
 
 
+class TestValidateKeyTempFile(unittest.TestCase):
+    """validate_key must use a unique temp file per call (concurrent-safe)."""
+
+    def test_concurrent_calls_use_distinct_temp_paths(self):
+        seen = []
+
+        def _fake_analyze(provider, api_key, model, image_path):
+            seen.append(Path(image_path).name)
+            return {"designs": [{"title": "x"}]}
+
+        with tempfile.TemporaryDirectory() as td:
+            real_mkstemp = dl.tempfile.mkstemp
+
+            def _mkstemp_here(*a, **k):
+                k["dir"] = td
+                return real_mkstemp(*a, **k)
+
+            with mock.patch.object(dl, "analyze_image", side_effect=_fake_analyze), \
+                 mock.patch.object(dl.tempfile, "mkstemp", side_effect=_mkstemp_here):
+                dl.validate_key("nim", "k", "m")
+                dl.validate_key("nim", "k", "m")
+        self.assertEqual(len(seen), 2)
+        self.assertNotEqual(seen[0], seen[1])  # distinct filenames
+
+    def test_temp_file_cleaned_up_after_validation(self):
+        with tempfile.TemporaryDirectory() as td:
+            real_mkstemp = dl.tempfile.mkstemp
+
+            def _mkstemp_here(*a, **k):
+                k["dir"] = td
+                return real_mkstemp(*a, **k)
+
+            with mock.patch.object(dl, "analyze_image", return_value={"designs": []}), \
+                 mock.patch.object(dl.tempfile, "mkstemp", side_effect=_mkstemp_here):
+                dl.validate_key("nim", "k", "m")
+            self.assertEqual(list(Path(td).iterdir()), [])  # nothing left behind
+
+
 if __name__ == "__main__":
     unittest.main()

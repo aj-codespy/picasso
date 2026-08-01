@@ -385,7 +385,10 @@ def validate_key(provider, api_key, model):
     pixel = base64.b64decode(
         "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
     )
-    tmp = Path(tempfile.gettempdir()) / "picasso_1x1.png"
+    # unique temp file per call — concurrent runs never collide
+    fd, tmp_name = tempfile.mkstemp(suffix=".png", prefix="picasso_1x1_")
+    os.close(fd)
+    tmp = Path(tmp_name)
     tmp.write_bytes(pixel)
     try:
         analyze_image(provider, api_key, model, str(tmp))
