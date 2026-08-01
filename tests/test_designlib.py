@@ -4,6 +4,7 @@ import base64
 import json
 import os
 import shutil
+import subprocess
 import sys
 import tempfile
 import time
@@ -413,6 +414,32 @@ class TestGracefulInterrupt(unittest.TestCase):
         joined = " ".join(str(c) for c in pr.call_args_list)
         self.assertIn("Interrupted", joined)
         self.assertNotIn("Traceback", joined)
+
+
+class TestResyncFailure(unittest.TestCase):
+    """resync() must warn and return False on failure — never crash update."""
+
+    # an existing script so resync takes the subprocess path, not the noop branch
+    EXISTING = Path("src/sync_data.py")
+
+    def test_resync_returns_true_on_success(self):
+        with mock.patch.object(dl, "SYNC_SCRIPT", self.EXISTING), \
+             mock.patch.object(dl.subprocess, "run", return_value=mock.Mock(returncode=0)):
+            self.assertTrue(dl.resync())
+
+    def test_resync_warns_and_returns_false_on_failure(self):
+        with mock.patch.object(dl, "SYNC_SCRIPT", self.EXISTING), \
+             mock.patch.object(dl.subprocess, "run", side_effect=subprocess.CalledProcessError(1, "sync")), \
+             mock.patch("builtins.print") as pr:
+            self.assertFalse(dl.resync())  # no exception propagates
+            joined = " ".join(str(c) for c in pr.call_args_list)
+            self.assertIn("WARNING", joined)
+
+    def test_resync_noop_without_script(self):
+        with mock.patch.object(dl, "SYNC_SCRIPT", Path("missing.py")), \
+             mock.patch.object(dl.subprocess, "run") as run:
+            self.assertTrue(dl.resync())
+            run.assert_not_called()
 
 
 if __name__ == "__main__":

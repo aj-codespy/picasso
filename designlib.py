@@ -463,8 +463,20 @@ def next_design_number(designs):
 
 
 def resync():
-    if SYNC_SCRIPT.exists():
+    """Refresh src/data.js from library.json. Returns True on success.
+
+    A sync failure only warns — library.json is the source of truth and the
+    refresh can be retried later; it must never abort an update run.
+    """
+    if not SYNC_SCRIPT.exists():
+        return True
+    try:
         subprocess.run([sys.executable, str(SYNC_SCRIPT)], check=True)
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"  WARNING: gallery data refresh failed (rc={e.returncode}) — "
+              f"library.json is safe; re-run update to retry.")
+        return False
 
 
 # ---------------------------------------------------------------------------
