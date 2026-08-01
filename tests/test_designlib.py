@@ -259,5 +259,23 @@ class TestAtomicWrite(unittest.TestCase):
         self.assertEqual(json.loads(f.read_text()), {"x": 1})  # original intact
 
 
+class TestAtomicSaves(unittest.TestCase):
+    def test_save_library_uses_atomic_write(self):
+        with tempfile.TemporaryDirectory() as td:
+            with mock.patch.object(dl, "JSON_FILE", Path(td) / "library.json"):
+                with mock.patch.object(dl, "atomic_write") as aw:
+                    dl.save_library({"designs": [{"a": 1}]})
+                    aw.assert_called_once_with(dl.JSON_FILE, json.dumps({"designs": [{"a": 1}]}, indent=2))
+
+    def test_save_config_uses_atomic_write_and_stays_private(self):
+        with tempfile.TemporaryDirectory() as td:
+            with mock.patch.object(dl, "CONFIG_FILE", Path(td) / "config.json"):
+                with mock.patch.object(dl, "atomic_write") as aw, \
+                     mock.patch.object(dl.os, "chmod") as ch:
+                    dl.save_config({"provider": "nim", "api_key": "x"})
+                    aw.assert_called_once_with(dl.CONFIG_FILE, json.dumps({"provider": "nim", "api_key": "x"}, indent=2))
+                    ch.assert_called_once_with(dl.CONFIG_FILE, 0o600)
+
+
 if __name__ == "__main__":
     unittest.main()

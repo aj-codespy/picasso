@@ -240,7 +240,7 @@ def load_config():
 
 def save_config(cfg):
     CONFIG_DIR.mkdir(mode=0o700, parents=True, exist_ok=True)
-    CONFIG_FILE.write_text(json.dumps(cfg, indent=2))
+    atomic_write(CONFIG_FILE, json.dumps(cfg, indent=2))
     os.chmod(CONFIG_FILE, 0o600)
 
 
@@ -402,7 +402,7 @@ def load_library():
 
 def save_library(data):
     JSON_FILE.parent.mkdir(parents=True, exist_ok=True)
-    JSON_FILE.write_text(json.dumps(data, indent=2))
+    atomic_write(JSON_FILE, json.dumps(data, indent=2))
 
 
 def next_design_number(designs):
