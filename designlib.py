@@ -140,7 +140,7 @@ def chat_completion(url, api_key, model, image_path, timeout=180):
                 {"type": "image_url", "image_url": {"url": f"data:{mime_for(image_path)};base64,{b64}"}},
             ],
         }],
-        "max_tokens": 1024,
+        "max_tokens": 2048,
         "temperature": 0.2,
     }
     req = urllib.request.Request(
