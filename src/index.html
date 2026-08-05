@@ -10,7 +10,11 @@
 <meta property="og:site_name" content="Picasso">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23131110'/%3E%3Ccircle cx='16' cy='16' r='8' fill='%23F97316'/%3E%3C/svg%3E">
 <title>Picasso — Design Gallery</title>
-<style>
+  <script src="vendor/gsap.min.js"></script>
+  <script src="vendor/ScrollTrigger.min.js"></script>
+  <script src="vendor/SplitText.min.js"></script>
+  <script src="vendor/Flip.min.js"></script>
+  <style>
   /* ============================================================
      DESIGN LIBRARY — light-theme exhibition world
      Warm gallery-white walls, ink placards, Instrument Serif
@@ -1009,6 +1013,17 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
   let activeTag = 'all';
   let searchQuery = '';
   let view = 'grid';
+
+  // ---------- Motion / GSAP capability (vendored, standard license) ----------
+  // Every animation below gates behind these flags so the build renders as a
+  // static, fully-functional gallery if GSAP is absent OR reduced-motion is on.
+  const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const HAS_GSAP = typeof window.gsap !== 'undefined' && !REDUCED;
+  if (HAS_GSAP) {
+    window.gsap.registerPlugin(window.ScrollTrigger, window.SplitText, window.Flip);
+    window.gsap.config({ nullTargetWarn: false });
+  }
+  const MOTION = { flips: HAS_GSAP && !!window.Flip, keen: HAS_GSAP };
 
   // ---------- Helpers ----------
   function designNum(file) {

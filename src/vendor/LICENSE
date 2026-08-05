@@ -1,0 +1,17 @@
+GSAP 3.13.0 — GreenSock Animation Platform
+===========================================
+
+Core (gsap.min.js) and plugins ScrollTrigger, SplitText, Flip.
+
+These files are the property of GreenSock, Inc., and are subject to the
+terms of the GSAP standard no-charge license.
+
+  https://gsap.com/standard-license
+
+GSAP became free to use (including in commercial projects) as of v3.13.
+It is **not** MIT licensed. Do not claim it as MIT.
+
+The GSAP license stays with GreenSock. This repo only strips/minimizes
+the notice into this file; the full license is published at the URL above.
+
+Vendored on 2026-08-05 from jsDelivr (gsap@3.13.0).
