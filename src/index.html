@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Design Library — Exhibition</title>
+<meta name="description" content="Picasso — a searchable design-inspiration gallery. Drop in screenshots, let vision AI write the description, tags, components, palette, and ideas. Works offline, no server, no dependencies.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Picasso — searchable design inspiration">
+<meta property="og:description" content="A design-inspiration gallery, generated from your screenshots by vision AI. Offline, free, MIT-licensed.">
+<meta property="og:site_name" content="Picasso">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23131110'/%3E%3Ccircle cx='16' cy='16' r='8' fill='%23F97316'/%3E%3C/svg%3E">
+<title>Picasso — Design Gallery</title>
 <style>
   /* ============================================================
      DESIGN LIBRARY — light-theme exhibition world
@@ -755,10 +761,10 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
 
 <header class="hero">
   <div class="hero-top">
-    <h1 class="exhibition-title">Design <em>Library</em></h1>
+    <h1 class="exhibition-title">Pica<em>sso</em></h1>
     <span class="hero-count" id="count">0 works on view</span>
   </div>
-  <p class="tagline">A curated exhibition of interface work — every screenshot analyzed by vision AI, indexed by <strong>design vocabulary</strong>.</p>
+  <p class="tagline">A curated exhibition of interface work — your screenshots, analyzed by vision AI and indexed by <strong>design vocabulary</strong>.</p>
   <div class="hero-stats">
     <div class="stat"><span class="stat-num" id="statWorks">0</span><span class="stat-label">Works on view</span></div>
     <div class="stat"><span class="stat-num" id="statVocab">0</span><span class="stat-label">Vocabularies</span></div>
@@ -801,26 +807,26 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     <div class="how-step">
       <span class="step-no">No. 1</span>
       <h3>Drop a screenshot</h3>
-      <p>Any interface screenshot, any name — into <code>src/screenshots/</code>. The library renames and numbers it for you.</p>
+      <p>Any interface screenshot, from any folder — <code>picasso setup</code> points the gallery at where your shots live.</p>
     </div>
     <div class="how-step">
       <span class="step-no">No. 2</span>
       <h3>Vision AI reads it</h3>
-      <p>One command — <code>python3 src/add_design.py</code> — sends it to NVIDIA NIM vision, which writes the description, tags, components, palette, and ideas.</p>
+      <p>One command — <code>picasso update</code> — sends your screenshots to your chosen vision model (OpenAI, Google, NVIDIA NIM, or OpenRouter), which writes the description, tags, components, palette, and ideas.</p>
     </div>
     <div class="how-step">
       <span class="step-no">No. 3</span>
       <h3>It joins the wall</h3>
-      <p>The work is appended to the library JSON and appears in the gallery instantly. Offline, by double-click — no server, no cloud.</p>
+      <p>The work is analysed and appears in the gallery instantly. Offline, by double-click — no server, no cloud. Open it with <code>picasso inspire</code>.</p>
     </div>
   </div>
 </section>
 
 <footer>
-  <span class="colophon-word">Design Library</span>
+  <span class="colophon-word">Picasso</span>
   <div class="colophon-meta">
-    An exhibition of interface works<br>
-    Vision analysis by NVIDIA NIM · Self-hosted Instrument Serif · No dependencies
+    A design-inspiration gallery you curate<br>
+    Vision AI (OpenAI · Google · NVIDIA NIM · OpenRouter) · Open source · MIT · Works offline
   </div>
 </footer>
 
