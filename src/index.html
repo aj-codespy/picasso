@@ -355,7 +355,7 @@
     cursor: pointer;
     z-index: 1;
     animation: hang .7s var(--ease) backwards;
-    transition: flex-grow .5s var(--ease);
+    transition: transform .5s var(--ease), box-shadow .35s var(--ease);
   }
   @keyframes hang {
     from { opacity: 0; transform: translateY(20px); }
@@ -366,15 +366,16 @@
     to   { opacity: 1; transform: none; }
   }
 
-  /* focus / recede — the hovered work grows to ~5/8 of its row (flex-grow 2
-     vs 0.6+0.6 for its row-mates); neighbors visibly cramp, nothing dims.
-     Height follows the 16:10 frame ratio, so the grown card is taller too. */
+  /* hover spotlight — transform-only, zero layout shift (CLS-safe).
+     The hovered work scales up ~3.5% and its row-mates recede to .985;
+     nothing dims. No flex/width change, so neighbors never jump. */
   .grid:not(.list) .row:has(.work:hover) .work:hover {
-    flex-grow: 2;
+    transform: scale(1.035);
     z-index: 5;
+    box-shadow: 0 2px 4px rgba(28, 23, 18, 0.06), 0 34px 64px rgba(28, 23, 18, 0.18);
   }
   .grid:not(.list) .row:has(.work:hover) .work:not(:hover) {
-    flex-grow: 0.6;
+    transform: scale(0.985);
   }
 
   .frame {
@@ -1226,6 +1227,35 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); work.click(); }
       });
       (row || grid).appendChild(work);
+    });
+    bindSpotlight();
+  }
+
+  // Cursor-tracked image zoom — transform-only (GSAP quickTo), wall view only.
+  // The inner image pans toward the cursor and breathes to ~1.12 while the
+  // wrapper keeps its own hover scale. Falls back to the CSS hover zoom when
+  // GSAP is absent or reduced-motion is on.
+  const _zoom = new WeakMap();
+  function bindSpotlight() {
+    if (!HAS_GSAP || view === 'list') return;
+    grid.querySelectorAll('.frame').forEach(frame => {
+      const img = frame.querySelector('img');
+      if (!img || _zoom.has(img)) return;
+      img.style.transition = 'none'; // let GSAP own the transform
+      const xTo = gsap.quickTo(img, 'xPercent', { duration: 0.45, ease: 'power2.out' });
+      const yTo = gsap.quickTo(img, 'yPercent', { duration: 0.45, ease: 'power2.out' });
+      const sTo = gsap.quickTo(img, 'scale', { duration: 0.45, ease: 'power2.out' });
+      const zoom = { xTo, yTo, sTo };
+      _zoom.set(img, zoom);
+      frame.addEventListener('mousemove', e => {
+        const r = frame.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - 0.5;
+        const y = (e.clientY - r.top) / r.height - 0.5;
+        zoom.xTo(-x * 7); zoom.yTo(-y * 7); zoom.sTo(1.12);
+      });
+      frame.addEventListener('mouseleave', () => {
+        zoom.xTo(0); zoom.yTo(0); zoom.sTo(1);
+      });
     });
   }
 
