@@ -512,6 +512,126 @@
     color: var(--faint);
   }
 
+  /* ---------- Empty state: the curator's room ---------- */
+  .empty-room {
+    grid-column: 1 / -1;
+    padding: 96px 0 120px;
+    text-align: center;
+  }
+  .ghost-row {
+    display: flex;
+    justify-content: center;
+    gap: 26px;
+    margin-bottom: 56px;
+    perspective: 900px;
+  }
+  .ghost-frame {
+    width: 218px;
+    height: 290px;
+    border: 1.5px dashed var(--line-strong);
+    border-radius: 6px;
+    position: relative;
+    background:
+      linear-gradient(135deg, rgba(243, 239, 231, 0) 40%, rgba(243, 239, 231, 0.9) 50%, rgba(243, 239, 231, 0) 60%);
+    background-size: 260% 260%;
+    animation: ghost-shimmer 4.5s var(--ease) infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ghost-frame:nth-child(1) { transform: rotate(-2.4deg); }
+  .ghost-frame:nth-child(2) { transform: rotate(1.2deg) translateY(8px); }
+  .ghost-frame:nth-child(3) { transform: rotate(2.8deg); }
+  @keyframes ghost-shimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  .ghost-no {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.35rem;
+    color: var(--faint);
+    letter-spacing: 0.02em;
+  }
+  .room-head {
+    font-family: var(--serif);
+    font-size: 2.6rem;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 18px;
+  }
+  .room-head em { color: var(--accent-deep); }
+  .room-copy {
+    max-width: 520px;
+    margin: 0 auto 42px;
+    font-size: 15.5px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+  }
+  .room-actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 26px;
+  }
+  .cmd-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    font-family: var(--mono);
+    font-size: 13.5px;
+    color: var(--ink);
+    cursor: pointer;
+    transition: border-color 0.15s var(--ease), transform 0.15s var(--ease);
+  }
+  .cmd-chip:hover { border-color: var(--ink-soft); transform: translateY(-1px); }
+  .cmd-chip.cmd-chip-primary {
+    background: var(--placard);
+    border-color: var(--placard);
+    color: var(--bg);
+  }
+  .cmd-chip.cmd-chip-primary:hover { border-color: var(--ink); }
+  .cmd-chip .cmd-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex: none; }
+  .cmd-chip.cmd-chip-primary .cmd-dot { background: var(--accent); }
+  .room-guide {
+    font-size: 13.5px;
+    color: var(--faint);
+  }
+  .room-guide a {
+    color: var(--accent-deep);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .room-note {
+    margin-top: 30px;
+    font-size: 12.5px;
+    color: var(--faint);
+    font-family: var(--mono);
+  }
+
+  /* missing artwork (seeded analysis, screenshot not shipped) */
+  .frame.no-art, .room-img-wrap.no-art {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-soft);
+    border: 1.5px dashed var(--line-strong);
+  }
+  .no-art-label {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.15rem;
+    color: var(--faint);
+    padding: 0 22px;
+    text-align: center;
+    line-height: 1.5;
+  }
+
   /* ---------- How it works ---------- */
   .how {
     max-width: 1560px;
@@ -859,7 +979,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     <button class="room-close" id="modalClose" aria-label="Close">
       <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
     </button>
-    <div class="room-img-wrap"><img id="modalImg" alt="Design preview"></div>
+    <div class="room-img-wrap" id="modalImgWrap"><img id="modalImg" alt="Design preview" onerror="handleModalImgError(this)"></div>
     <article class="placard-full">
       <span class="p-no" id="modalNo"></span>
       <h2 id="modalTitle"></h2>
@@ -928,16 +1048,16 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
   function copyHex(hex, chip) {
     const done = () => { chip.innerHTML = 'Copied'; setTimeout(() => { if (chip.isConnected) renderPaletteChip(chip, hex); }, 900); };
     if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(hex).then(done).catch(() => legacyCopy(hex, done));
+      navigator.clipboard.writeText(hex).then(done).catch(() => legacyCopy(hex));
     } else {
-      legacyCopy(hex, done);
+      legacyCopy(hex);
     }
   }
-  function legacyCopy(hex, done) {
+  function legacyCopy(text) {
     const ta = document.createElement('textarea');
-    ta.value = hex; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+    ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
     document.body.appendChild(ta); ta.select();
-    try { document.execCommand('copy'); done(); } catch (e) { /* ignore */ }
+    try { document.execCommand('copy'); } catch (e) { /* ignore */ }
     ta.remove();
   }
   function renderPaletteChip(chip, hex) {
@@ -976,13 +1096,19 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
   }
 
   // ---------- Marquee ----------
+  // First-run vocabulary so the marquee is alive before any works exist.
+  const DEFAULT_VOCAB = ['clean', 'tech', 'bold-typography', 'landing-page', 'saas',
+    'ai-saas', 'flat-design', 'corporate', 'dashboard', 'spaced-out', 'futuristic',
+    'premium', 'gradient', 'minimalist', 'bento', 'dark-mode', 'airy', 'sidebar',
+    'card-grid', 'mobile-first', 'glassmorphism', 'stats', 'material',
+    'illustration-heavy', 'earthy', 'warm', 'monochrome', 'gold-accent', 'playful'];
   function renderMarquee() {
     const counts = tagCounts();
-    const words = Array.from(counts.entries())
+    let words = Array.from(counts.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, 24)
       .map(([t]) => t);
-    if (!words.length) return;
+    if (!words.length) words = DEFAULT_VOCAB.slice(0, 24);
     const group = () => words.map(w =>
       `<span class="marquee-word">${w}</span><span class="marquee-dot"></span>`
     ).join('');
@@ -1012,11 +1138,33 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
       .forEach(([t, n]) => mk(t, t, n));
   }
 
+  function emptyRoomHTML() {
+    const ghost = n => `<div class="ghost-frame" aria-hidden="true"><span class="ghost-no">No. ${String(n).padStart(2, '0')}</span></div>`;
+    return `
+      <div class="empty-room" role="status">
+        <div class="ghost-row">${ghost(1)}${ghost(2)}${ghost(3)}</div>
+        <h2 class="room-head">The walls are <em>waiting</em>.</h2>
+        <p class="room-copy">Drop your screenshots in, and Picasso's curator turns them into a
+          searchable gallery — vocabulary index, palette swatches, and notes on why each work works.</p>
+        <div class="room-actions">
+          <button type="button" class="cmd-chip cmd-chip-primary" data-copy="picasso seed">
+            <span class="cmd-dot"></span>picasso seed
+          </button>
+          <button type="button" class="cmd-chip" data-copy="picasso update">
+            <span class="cmd-dot"></span>picasso update
+          </button>
+        </div>
+        <p class="room-guide">New here? The <a href="https://github.com/aj-codespy/picasso" target="_blank" rel="noopener">30-second guide</a> walks through setup.</p>
+        <p class="room-note">Click a command to copy it — your screenshots never leave this machine.</p>
+      </div>`;
+  }
+
   function render() {
     const filtered = DESIGNS.filter(matches);
     countEl.textContent = `${DESIGNS.length} ${DESIGNS.length === 1 ? 'work' : 'works'} on view`;
     if (!DESIGNS.length) {
-      grid.innerHTML = '<div class="empty">The walls are empty — drop screenshots in and run the analyzer.</div>';
+      grid.className = 'grid';
+      grid.innerHTML = emptyRoomHTML();
       return;
     }
     if (!filtered.length) {
@@ -1045,7 +1193,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
       const compsAll = (d.components || []).slice(0, 6).join(' · ');
       work.innerHTML = `
         <div class="frame">
-          <img loading="lazy" src="screenshots/${d.file}" alt="${titleOf(d)} — UI screenshot">
+          <img loading="lazy" src="screenshots/${d.file}" alt="${titleOf(d)} — UI screenshot" onerror="handleImgError(this)">
         </div>
         <figcaption class="placard">
           <span class="placard-no">No. ${plateNo(d.file)}</span>
@@ -1071,6 +1219,18 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
   const modal = document.getElementById('modal');
 
   function openModal(d) {
+    const wrap = document.getElementById('modalImgWrap');
+    if (wrap.dataset.noArt || !document.getElementById('modalImg')) {
+      wrap.classList.remove('no-art');
+      delete wrap.dataset.noArt;
+      if (!document.getElementById('modalImg')) {
+        const img = document.createElement('img');
+        img.id = 'modalImg';
+        img.alt = 'Design preview';
+        img.onerror = () => handleModalImgError(img);
+        wrap.prepend(img);
+      }
+    }
     document.getElementById('modalImg').src = 'screenshots/' + d.file;
     document.getElementById('modalNo').textContent = 'No. ' + plateNo(d.file);
     document.getElementById('modalTitle').textContent = titleOf(d);
@@ -1108,6 +1268,30 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
   document.getElementById('modalClose').addEventListener('click', closeModal);
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
+  // Missing screenshot (e.g. seeded analysis whose artwork isn't shipped):
+  // swap the broken <img> for a quiet "artwork stays yours" ghost label.
+  function handleImgError(img) {
+    const frame = img.closest('.frame');
+    if (!frame || frame.dataset.noArt) return;
+    frame.dataset.noArt = '1';
+    frame.classList.add('no-art');
+    const label = document.createElement('div');
+    label.className = 'no-art-label';
+    label.textContent = 'Artwork stays yours — add your screenshot';
+    img.replaceWith(label);
+  }
+
+  function handleModalImgError(img) {
+    const wrap = document.getElementById('modalImgWrap');
+    if (!wrap || wrap.dataset.noArt) return;
+    wrap.dataset.noArt = '1';
+    wrap.classList.add('no-art');
+    const label = document.createElement('div');
+    label.className = 'no-art-label';
+    label.textContent = 'Artwork stays yours — this is a seeded work with analysis only';
+    img.replaceWith(label);
+  }
+
   // ---------- Events ----------
   tagbar.addEventListener('click', e => {
     const b = e.target.closest('.index-item');
@@ -1115,6 +1299,27 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     activeTag = b.dataset.tag;
     renderTags(); render();
   });
+  grid.addEventListener('click', e => {
+    const chip = e.target.closest('.cmd-chip');
+    if (!chip) return;
+    copyText(chip.dataset.copy, chip);
+  });
+  function copyText(text, chip) {
+    // Optimistic feedback: respond to the click synchronously, then attempt the
+    // copy in the background. Never block the UI on clipboard permission.
+    const was = chip.textContent;
+    chip.textContent = 'Copied ✓';
+    setTimeout(() => { chip.textContent = was; }, 1200);
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).catch(() => legacyCopy(text));
+      } else {
+        legacyCopy(text);
+      }
+    } catch (e) {
+      /* clipboard unavailable — feedback already shown */
+    }
+  }
   searchInput.addEventListener('input', e => {
     searchQuery = e.target.value.trim().toLowerCase();
     render();

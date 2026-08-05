@@ -12,6 +12,7 @@ Drop screenshots into src/screenshots/, run `picasso update`, and the CLI:
 Commands:
     picasso setup     choose provider, enter API key, pick model + screenshots folder
     picasso update    analyze new screenshots and refresh the gallery
+    picasso seed      load the bundled sample collection (opt-in, --force to overwrite)
     picasso inspire   just open the gallery page in your browser
 
 The screenshots folder is saved in ~/.designlib/config.json during setup —
@@ -41,6 +42,7 @@ VERSION = "1.0.0"
 ROOT = Path(__file__).resolve().parent
 SCREENSHOTS_DIR = ROOT / "src" / "screenshots"
 JSON_FILE = ROOT / "data" / "library.json"
+SEED_FILE = ROOT / "data" / "seed.json"
 SYNC_SCRIPT = ROOT / "src" / "sync_data.py"
 INDEX_HTML = ROOT / "src" / "index.html"
 CONFIG_DIR = Path.home() / ".designlib"
@@ -684,6 +686,37 @@ def cmd_inspire(args):
     open_gallery()
 
 
+def cmd_seed(args):
+    """Load the committed sample collection into the library (opt-in).
+
+    Privacy-safe by default: refuse to touch a library that already has
+    designs unless --force. The sample collection is analysis metadata only —
+    its artwork (screenshots) is never shipped — so the gallery shows the
+    work hung with a graceful "artwork stays yours" placeholder until the
+    user runs `picasso update` on their own screenshots.
+    """
+    data = load_library()
+    if data.get("designs") and not args.force:
+        print("Your library already has works — running seed would overwrite them.")
+        print("Re-run with:  picasso seed --force   # to replace everything")
+        sys.exit(1)
+    if not SEED_FILE.exists():
+        print(f"Sample collection not found: {SEED_FILE}")
+        print("This build has no bundled samples. Run:  picasso setup   # then  picasso update")
+        sys.exit(1)
+    seed = json.loads(SEED_FILE.read_text())
+    designs = seed.get("designs", [])
+    if not designs:
+        print("The sample collection is empty.")
+        sys.exit(1)
+    save_library({"designs": designs})
+    resync()
+    print(f"Seeded the gallery with {len(designs)} sample works.")
+    print("Their artwork is analysis metadata only — add your own screenshots and run:")
+    print("  picasso update   # to hang your real works alongside them")
+    print("  picasso seed --force   # to reload the bundled samples")
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(
         prog="picasso",
@@ -712,6 +745,10 @@ def main(argv=None):
 
     p_inspire = sub.add_parser("inspire", help="open the gallery page in your browser")
     p_inspire.set_defaults(fn=cmd_inspire)
+
+    p_seed = sub.add_parser("seed", help="load the bundled sample collection (opt-in)")
+    p_seed.add_argument("--force", action="store_true", help="overwrite an existing library")
+    p_seed.set_defaults(fn=cmd_seed)
 
     args = parser.parse_args(argv)
     if not args.command:

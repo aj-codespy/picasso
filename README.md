@@ -85,8 +85,16 @@ Pick any one at `picasso setup` — the CLI remembers it.
 ```bash
 picasso setup      # choose provider, enter API key, pick model + screenshots folder (one time)
 picasso update     # analyze NEW screenshots, refresh the gallery
+picasso seed       # load a bundled sample collection to explore before analyzing your own
 picasso inspire    # just open the gallery page
 ```
+
+`picasso seed` is opt-in and privacy-safe. Launching it loads 20 sample works
+(analysis metadata only — titles, tags, palette, ideas) so you can see how a
+curated Picasso gallery looks before you've analyzed anything. The samples'
+artwork is never bundled: works show a quiet "artwork stays yours" placeholder
+until you run `picasso update` on your own screenshots. It refuses to overwrite
+a library that already has works unless you pass `--force`.
 
 ### `picasso update` flags
 

@@ -497,6 +497,77 @@ class TestVersionFlag(unittest.TestCase):
         self.assertIn(dl.VERSION, buf.getvalue())
 
 
+class TestSeedCommand(unittest.TestCase):
+    """picasso seed copies the committed sample collection into the library.
+
+    Opt-in and privacy-safe: it must refuse to clobber a library that already
+    has designs unless --force, and always leave a usable data.js behind.
+    """
+
+    def _patched_seed_path(self, td):
+        # Write a 2-design seed into the temp dir and point SEED_FILE there.
+        seed = {"designs": [
+            {"path": "screenshots/design_01.png", "analysis": {"tags": ["clean"], "description": "A."}},
+            {"path": "screenshots/design_02.png", "analysis": {"tags": ["bold-typography"], "description": "B."}},
+        ]}
+        p = Path(td) / "seed.json"
+        p.write_text(json.dumps(seed))
+        return p
+
+    def test_seed_fills_empty_library_and_resyncs(self):
+        with tempfile.TemporaryDirectory() as td:
+            seed = self._patched_seed_path(td)
+            with mock.patch.object(dl, "SEED_FILE", seed), \
+                 mock.patch.object(dl, "JSON_FILE", Path(td) / "library.json"), \
+                 mock.patch.object(dl, "resync", return_value=True) as resync, \
+                 mock.patch("builtins.print"):
+                dl.cmd_seed(type("A", (), {"force": False})())
+            lib = json.loads((Path(td) / "library.json").read_text())
+            self.assertEqual(len(lib["designs"]), 2)
+            resync.assert_called_once()
+
+    def test_seed_refuses_to_clobber_without_force(self):
+        with tempfile.TemporaryDirectory() as td:
+            seed = self._patched_seed_path(td)
+            lib = Path(td) / "library.json"
+            lib.write_text(json.dumps({"designs": [{"path": "screenshots/mine.png", "analysis": {}}]}))
+            with mock.patch.object(dl, "SEED_FILE", seed), \
+                 mock.patch.object(dl, "JSON_FILE", lib), \
+                 mock.patch("builtins.print") as pr:
+                with self.assertRaises(SystemExit) as ctx:
+                    dl.cmd_seed(type("A", (), {"force": False})())
+            self.assertEqual(ctx.exception.code, 1)
+            # library untouched
+            self.assertEqual(len(json.loads(lib.read_text())["designs"]), 1)
+            joined = " ".join(str(c) for c in pr.call_args_list)
+            self.assertIn("--force", joined)
+
+    def test_seed_force_overwrites_existing(self):
+        with tempfile.TemporaryDirectory() as td:
+            seed = self._patched_seed_path(td)
+            lib = Path(td) / "library.json"
+            lib.write_text(json.dumps({"designs": [{"path": "screenshots/mine.png", "analysis": {}}]}))
+            with mock.patch.object(dl, "SEED_FILE", seed), \
+                 mock.patch.object(dl, "JSON_FILE", lib), \
+                 mock.patch.object(dl, "resync", return_value=True), \
+                 mock.patch("builtins.print"):
+                dl.cmd_seed(type("A", (), {"force": True})())
+            lib2 = json.loads(lib.read_text())
+            self.assertEqual(len(lib2["designs"]), 2)
+
+    def test_seed_missing_prompts_users_to_run_setup(self):
+        with tempfile.TemporaryDirectory() as td:
+            missing = Path(td) / "nope.json"
+            with mock.patch.object(dl, "SEED_FILE", missing), \
+                 mock.patch.object(dl, "JSON_FILE", Path(td) / "library.json"), \
+                 mock.patch("builtins.print") as pr:
+                with self.assertRaises(SystemExit) as ctx:
+                    dl.cmd_seed(type("A", (), {"force": False})())
+            self.assertEqual(ctx.exception.code, 1)
+            joined = " ".join(str(c) for c in pr.call_args_list)
+            self.assertIn("sample", joined.lower())
+
+
 class TestInstalledLauncher(unittest.TestCase):
     """B1 regression: the installed `picasso` command must resolve the real
     launcher path even when invoked through the symlink created by
