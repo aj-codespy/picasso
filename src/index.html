@@ -357,6 +357,21 @@
     animation: hang .7s var(--ease) backwards;
     transition: transform .5s var(--ease), box-shadow .35s var(--ease);
   }
+  /* with GSAP motion on, the load-time CSS hang is replaced by the
+     scroll-entry row hang (ScrollTrigger.batch) */
+  body.motion .work { animation: none; }
+
+  /* scroll progress rule — fixed 3px orange bar across the top */
+  #scrollProgress {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--accent);
+    transform-origin: 0 50%;
+    transform: scaleX(0);
+    z-index: 99;
+    pointer-events: none;
+  }
   @keyframes hang {
     from { opacity: 0; transform: translateY(20px); }
     to   { opacity: 1; transform: none; }
@@ -898,7 +913,9 @@
   }
 </style>
 </head>
-<body>
+<body class="has-js">
+<!-- scroll progress rule — fills with page scroll; hidden for reduced motion -->
+<div id="scrollProgress" aria-hidden="true"></div>
 <!--
 THESIS: An exhibition on light — the collection hangs on warm gallery-white walls; every work carries a catalog number and an ink placard, and the vocabulary scrolls past like the gallery's own announcement board. Refuses the template landing-page default.
 OWN-WORLD: Warm gallery-white walls (#FAF7F2) with white cards (#FFFFFF), hairline rules (#E5DFD2), ink placards (#131110) overlapping frame bottoms, Instrument Serif catalog voice, mono metadata, brand orange #F97316 as the exhibition marker (deep orange #C2500A for text on light). Hero carries a slow marquee of the design vocabulary.
@@ -1023,8 +1040,10 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
   if (HAS_GSAP) {
     window.gsap.registerPlugin(window.ScrollTrigger, window.SplitText, window.Flip);
     window.gsap.config({ nullTargetWarn: false });
+    document.body.classList.add('motion');
   }
   const MOTION = { flips: HAS_GSAP && !!window.Flip, keen: HAS_GSAP };
+  const _scrollers = []; // active ScrollTriggers, cleared on re-render
 
   // ---------- Helpers ----------
   function designNum(file) {
@@ -1229,6 +1248,30 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
       (row || grid).appendChild(work);
     });
     bindSpotlight();
+    setupScrollNarrative();
+  }
+
+  // Scroll narrative: rows hang in on entry (once) + a top orange progress
+  // rule fills as the page scrolls. Wall view only; recreated after each
+  // render so fresh rows animate too.
+  function setupScrollNarrative() {
+    if (!HAS_GSAP) return;
+    _scrollers.forEach(st => { try { st.kill(); } catch (e) {} });
+    _scrollers.length = 0;
+    if (view === 'grid') {
+      const batch = ScrollTrigger.batch('.row', {
+        start: 'top 85%',
+        once: true,
+        onEnter: els => gsap.fromTo(els, { y: 26, opacity: 0 },
+          { y: 0, opacity: 1, stagger: 0.09, duration: 0.9, ease: 'power3.out' })
+      });
+      _scrollers.push(...batch);
+    }
+    const prog = ScrollTrigger.create({
+      start: 0, end: 'max',
+      onUpdate: self => gsap.set('#scrollProgress', { scaleX: self.progress })
+    });
+    _scrollers.push(prog);
   }
 
   // Cursor-tracked image zoom — transform-only (GSAP quickTo), wall view only.
