@@ -757,6 +757,10 @@
     box-shadow: 0 40px 90px rgba(28, 23, 18, 0.28);
     animation: curtain .35s var(--ease) both;
   }
+  /* with GSAP motion on, the modal opens via Flip (blow-up) instead */
+  body.motion .room { animation: none; }
+  /* room is a focus container while open; visual hints for keyboard users */
+  .room:focus { outline: none; }
   @keyframes curtain {
     from { opacity: 0; transform: translateY(14px) scale(0.99); }
     to   { opacity: 1; transform: none; }
@@ -1240,7 +1244,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
             ${compsAll ? `<div class="pi-comps">${compsAll}</div>` : ''}
           </div></div>
         </figcaption>`;
-      work.addEventListener('click', () => openModal(d));
+      work.addEventListener('click', () => openModal(d, work));
       work.tabIndex = 0;
       work.addEventListener('keydown', e => {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); work.click(); }
@@ -1305,8 +1309,41 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
   // ---------- Detail room ----------
   const backdrop = document.getElementById('modalBackdrop');
   const modal = document.getElementById('modal');
+  let lastTrigger = null;
 
-  function openModal(d) {
+  // Full a11y contract: focus trap + inert the rest of the page while open,
+  // restore focus to the trigger on close (works with or without motion).
+  const trappedEls = () => Array.from(
+    modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+  ).filter(el => !el.disabled && el.offsetParent !== null);
+
+  function setPageInert(on) {
+    const exclude = new Set(['modalBackdrop', 'scrollProgress']);
+    Array.from(document.body.children).forEach(el => {
+      if (exclude.has(el.id) || el.tagName === 'SCRIPT' || el.tagName === 'STYLE') return;
+      if (on) el.setAttribute('inert', '');
+      else el.removeAttribute('inert');
+    });
+  }
+
+  function trapFocus(e) {
+    if (e.key !== 'Tab') return;
+    const elms = trappedEls();
+    if (!elms.length) return;
+    const first = elms[0], last = elms[elms.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault(); last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault(); first.focus();
+    }
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+    else if (backdrop.classList.contains('open')) trapFocus(e);
+  });
+
+  function openModal(d, triggerEl) {
+    lastTrigger = triggerEl || null;
     const wrap = document.getElementById('modalImgWrap');
     if (wrap.dataset.noArt || !document.getElementById('modalImg')) {
       wrap.classList.remove('no-art');
@@ -1344,17 +1381,36 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     const ideas = d.ideas || [];
     document.getElementById('modalIdeas').innerHTML =
       ideas.map(i => `<li>${i}</li>`).join('') || '<li>No ideas captured yet.</li>';
+
+    // FLIP blow-up: open the room, teleport the image wrap onto the clicked
+    // frame's rect, then Flip.from animates it to its natural position.
+    // Static fade fallback when GSAP/Flip is absent.
+    let flipTarget = null;
+    if (MOTION.flips && triggerEl) {
+      flipTarget = triggerEl.querySelector('.frame') || null;
+    }
     backdrop.classList.add('open');
     document.body.style.overflow = 'hidden';
-    document.getElementById('modalClose').focus();
+    setPageInert(true);
+
+    if (flipTarget) {
+      const imgWrap = wrap;
+      const state = Flip.getState(imgWrap);
+      Flip.fit(imgWrap, flipTarget, { scale: true, simple: true });
+      Flip.from(state, { duration: 0.6, ease: 'power3.inOut' });
+    }
+
+    const pill = document.getElementById('modalClose');
+    pill.focus();
   }
   function closeModal() {
     backdrop.classList.remove('open');
     document.body.style.overflow = '';
+    setPageInert(false);
+    if (lastTrigger && lastTrigger.isConnected) lastTrigger.focus();
   }
   backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(); });
   document.getElementById('modalClose').addEventListener('click', closeModal);
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
   // Missing screenshot (e.g. seeded analysis whose artwork isn't shipped):
   // swap the broken <img> for a quiet "artwork stays yours" ghost label.
