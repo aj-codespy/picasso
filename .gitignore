@@ -7,6 +7,9 @@ src/screenshots/*.jpg
 src/screenshots/*.jpeg
 src/screenshots/*.webp
 
+# user-owned favorites + notes overlay (best-effort persistence)
+src/meta.json
+
 # local backup of a generated library
 data/library.backup.json
 

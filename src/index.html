@@ -791,6 +791,43 @@
   .room-close:hover { border-color: var(--accent-deep); color: var(--accent-deep); }
   .room-close svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; }
 
+  /* favorite star — placard (dark) and modal (light) variants */
+  .fav-star {
+    background: none; border: none; cursor: pointer; padding: 0;
+    font-size: 19px; line-height: 1; color: var(--accent);
+    opacity: .45; transition: opacity .18s, transform .18s var(--ease);
+  }
+  .fav-star:hover { opacity: 1; transform: scale(1.22); }
+  .fav-star.on { opacity: 1; }
+  .placard .fav-star { position: absolute; top: 10px; right: 12px; z-index: 4; font-size: 15px; color: var(--accent); }
+  .p-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .p-head .fav-star { font-size: 22px; }
+
+  /* private note — single-line, persists on blur, copy affordance */
+  .p-note { border-top: 1px solid var(--line); padding-top: 14px; margin-top: 2px; }
+  .p-note label {
+    display: block; font-size: 10px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--ink-soft); margin-bottom: 7px;
+  }
+  .p-note-row { display: flex; gap: 8px; }
+  .p-note input {
+    flex: 1; min-width: 0;
+    background: var(--surface-soft);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    color: var(--ink);
+    padding: 8px 11px;
+    font: inherit; font-size: 13px;
+  }
+  .p-note input:focus { outline: none; border-color: var(--accent); }
+  .p-note-copy {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 6px; color: var(--ink); cursor: pointer;
+    font: inherit; font-size: 11.5px; letter-spacing: .06em;
+    padding: 0 12px; transition: border-color .18s, color .18s;
+  }
+  .p-note-copy:hover { border-color: var(--accent-deep); color: var(--accent-deep); }
+
   .placard-full { padding: 36px 36px 32px; display: flex; flex-direction: column; gap: 20px; }
   .placard-full .p-no {
     font-family: var(--serif);
@@ -1007,7 +1044,10 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     </button>
     <div class="room-img-wrap" id="modalImgWrap"><img id="modalImg" alt="Design preview" onerror="handleModalImgError(this)"></div>
     <article class="placard-full">
-      <span class="p-no" id="modalNo"></span>
+      <div class="p-head">
+        <span class="p-no" id="modalNo"></span>
+        <button type="button" class="fav-star" id="modalFav" aria-pressed="false" title="Save to favorites" aria-label="Save to favorites">★</button>
+      </div>
       <h2 id="modalTitle"></h2>
       <p class="p-desc" id="modalDesc"></p>
       <dl class="p-facts">
@@ -1020,6 +1060,13 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
         <div class="p-fact"><dt>Use it for</dt><dd><ul class="p-ideas" id="modalUsage"></ul></dd></div>
         <div class="p-fact"><dt>Ideas</dt><dd><ul class="p-ideas" id="modalIdeas"></ul></dd></div>
       </dl>
+      <div class="p-note">
+        <label for="modalNote">Private note</label>
+        <div class="p-note-row">
+          <input id="modalNote" type="text" maxlength="160" placeholder="Stays on this machine…" autocomplete="off">
+          <button type="button" class="p-note-copy" id="modalNoteCopy">copy</button>
+        </div>
+      </div>
     </article>
   </div>
 </div>
@@ -1106,6 +1153,60 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     const dd = document.getElementById(id);
     if (!dd) return;
     dd.closest('.p-fact').hidden = !value;
+  }
+
+  // ---------- User overlay: favorites + private notes ----------
+  // Best-effort persistence: read src/meta.json when reachable (hosted or a
+  // permissive file:// origin); otherwise fall back to localStorage silently.
+  // Never throws — the gallery is fully functional without the overlay.
+  const META_KEY = 'picasso-meta-v1';
+  let META = { favorites: {}, notes: {} };
+  let META_READY = false;
+
+  function loadMeta() {
+    return fetch('meta.json', { cache: 'no-store' })
+      .then(r => (r.ok ? r.json() : null))
+      .then(j => {
+        if (j && typeof j === 'object') {
+          META = Object.assign({ favorites: {}, notes: {} }, j);
+        }
+        try {
+          const local = localStorage.getItem(META_KEY);
+          if (local) META = Object.assign({ favorites: {}, notes: {} }, JSON.parse(local));
+        } catch (e) { /* storage blocked — keep file seed */ }
+        META_READY = true;
+      })
+      .catch(() => {
+        try {
+          const local = localStorage.getItem(META_KEY);
+          if (local) META = Object.assign({ favorites: {}, notes: {} }, JSON.parse(local));
+        } catch (e) { /* storage blocked — defaults */ }
+        META_READY = true;
+      });
+  }
+  function saveMeta() {
+    try { localStorage.setItem(META_KEY, JSON.stringify(META)); } catch (e) { /* ignore */ }
+    if (window.isSecureContext && location.protocol !== 'file:') {
+      fetch('meta.json', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(META, null, 2)
+      }).catch(() => { /* hosted read-only — degrade silently */ });
+    }
+  }
+  function isFav(plate) { return !!(META.favorites && META.favorites[plate]); }
+  function setFavUI(btn, plate) {
+    if (!btn) return;
+    const on = isFav(plate);
+    btn.setAttribute('aria-pressed', String(on));
+    btn.classList.toggle('on', on);
+  }
+  function toggleFav(plate) {
+    if (!META_READY) return;
+    const f = META.favorites || (META.favorites = {});
+    if (f[plate]) delete f[plate]; else f[plate] = true;
+    saveMeta();
+    document.querySelectorAll(`.fav-star[data-fav="${plate}"]`).forEach(b => setFavUI(b, plate));
   }
   function metaLine(d) {
     const comps = (d.components || []).slice(0, 3).join(' · ');
@@ -1235,6 +1336,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
           <img loading="lazy" src="screenshots/${d.file}" alt="${titleOf(d)} — UI screenshot" onerror="handleImgError(this)">
         </div>
         <figcaption class="placard">
+          <button type="button" class="fav-star" data-fav="${plateNo(d.file)}" aria-pressed="false" title="Save to favorites" aria-label="Save to favorites">★</button>
           <span class="placard-no">No. ${plateNo(d.file)}</span>
           <span class="placard-title">${titleOf(d)}</span>
           <span class="placard-meta">${metaLine(d)}</span>
@@ -1247,7 +1349,13 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
       work.addEventListener('click', () => openModal(d, work));
       work.tabIndex = 0;
       work.addEventListener('keydown', e => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); work.click(); }
+        if ((e.key === 'Enter' || e.key === ' ') && e.target === work) { e.preventDefault(); work.click(); }
+      });
+      const star = work.querySelector('.fav-star');
+      setFavUI(star, plateNo(d.file));
+      star.addEventListener('click', e => {
+        e.stopPropagation();
+        toggleFav(plateNo(d.file));
       });
       (row || grid).appendChild(work);
     });
@@ -1310,6 +1418,8 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
   const backdrop = document.getElementById('modalBackdrop');
   const modal = document.getElementById('modal');
   let lastTrigger = null;
+  let currentFavPlate = null;
+  let currentNotePlate = null;
 
   // Full a11y contract: focus trap + inert the rest of the page while open,
   // restore focus to the trigger on close (works with or without motion).
@@ -1344,6 +1454,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
 
   function openModal(d, triggerEl) {
     lastTrigger = triggerEl || null;
+    const plate = plateNo(d.file);
     const wrap = document.getElementById('modalImgWrap');
     if (wrap.dataset.noArt || !document.getElementById('modalImg')) {
       wrap.classList.remove('no-art');
@@ -1400,6 +1511,14 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
       Flip.from(state, { duration: 0.6, ease: 'power3.inOut' });
     }
 
+    currentFavPlate = plate;
+    const favBtn = document.getElementById('modalFav');
+    favBtn.dataset.fav = plate;
+    setFavUI(favBtn, plate);
+    const noteEl = document.getElementById('modalNote');
+    if (currentNotePlate !== plate) noteEl.value = (META.notes && META.notes[plate]) || '';
+    currentNotePlate = plate;
+
     const pill = document.getElementById('modalClose');
     pill.focus();
   }
@@ -1411,6 +1530,21 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
   }
   backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(); });
   document.getElementById('modalClose').addEventListener('click', closeModal);
+  document.getElementById('modalFav').addEventListener('click', () => {
+    if (currentFavPlate) toggleFav(currentFavPlate);
+  });
+  document.getElementById('modalNote').addEventListener('blur', e => {
+    if (!currentNotePlate) return;
+    const v = e.target.value.trim();
+    const notes = META.notes || (META.notes = {});
+    if (v) notes[currentNotePlate] = v; else delete notes[currentNotePlate];
+    saveMeta();
+  });
+  document.getElementById('modalNoteCopy').addEventListener('click', e => {
+    const note = document.getElementById('modalNote');
+    if (!note.value.trim()) { note.focus(); return; }
+    copyText(note.value, e.currentTarget);
+  });
 
   // Missing screenshot (e.g. seeded analysis whose artwork isn't shipped):
   // swap the broken <img> for a quiet "artwork stays yours" ghost label.
@@ -1476,10 +1610,12 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
   });
 
   // ---------- Init ----------
-  renderStats();
-  renderMarquee();
-  renderTags();
-  render();
+  loadMeta().then(() => {
+    renderStats();
+    renderMarquee();
+    renderTags();
+    render();
+  });
 </script>
 </body>
 </html>
