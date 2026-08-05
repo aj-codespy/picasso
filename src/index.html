@@ -708,6 +708,30 @@
     color: var(--ink-soft);
     border-radius: 4px;
   }
+  .p-swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+  .p-swatch {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 4px 9px 4px 5px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: border-color 0.15s var(--ease), transform 0.15s var(--ease);
+  }
+  .p-swatch:hover { border-color: var(--line-strong); transform: translateY(-1px); }
+  .p-swatch-chip {
+    width: 18px; height: 18px;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    flex: none;
+  }
+  .p-swatch-name { font-family: var(--sans); }
+  .p-fact[hidden] { display: none; }
   .p-ideas { list-style: none; display: flex; flex-direction: column; gap: 9px; }
   .p-ideas li {
     font-size: 13.5px;
@@ -879,6 +903,51 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     const n = designNum(file);
     return n !== null ? `Design ${n}` : file.replace(/\.png$/, '');
   }
+  function titleOf(d) {
+    return (d.title && d.title.trim()) ? d.title : titleFromFile(d.file);
+  }
+  // Render swatches; fall back to a plain value when no hex swatches exist.
+  function renderPalette(el, palette) {
+    const swatches = (Array.isArray(palette) ? palette : []).filter(s => s && s.hex);
+    if (!swatches.length) {
+      el.textContent = (typeof palette === 'string' && palette) ? palette : '—';
+      return;
+    }
+    el.classList.add('p-swatches');
+    swatches.forEach(s => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'p-swatch';
+      chip.title = `${s.name || s.hex} — click to copy`;
+      chip.setAttribute('aria-label', `Copy color ${s.hex}`);
+      chip.innerHTML = `<span class="p-swatch-chip" style="background:${s.hex}"></span><span class="p-swatch-name">${s.name}</span><span>${s.hex}</span>`;
+      chip.addEventListener('click', () => copyHex(s.hex, chip));
+      el.appendChild(chip);
+    });
+  }
+  function copyHex(hex, chip) {
+    const done = () => { chip.innerHTML = 'Copied'; setTimeout(() => { if (chip.isConnected) renderPaletteChip(chip, hex); }, 900); };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(hex).then(done).catch(() => legacyCopy(hex, done));
+    } else {
+      legacyCopy(hex, done);
+    }
+  }
+  function legacyCopy(hex, done) {
+    const ta = document.createElement('textarea');
+    ta.value = hex; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) { /* ignore */ }
+    ta.remove();
+  }
+  function renderPaletteChip(chip, hex) {
+    chip.innerHTML = `<span class="p-swatch-chip" style="background:${hex}"></span><span class="p-swatch-name"></span><span>${hex}</span>`;
+  }
+  function hideEmptyFact(id, value) {
+    const dd = document.getElementById(id);
+    if (!dd) return;
+    dd.closest('.p-fact').hidden = !value;
+  }
   function metaLine(d) {
     const comps = (d.components || []).slice(0, 3).join(' · ');
     const n = (d.tags || []).length;
@@ -898,7 +967,9 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
   function matches(d) {
     if (activeTag !== 'all' && !(d.tags || []).includes(activeTag)) return false;
     if (searchQuery) {
-      const hay = [d.description, d.file, titleFromFile(d.file), (d.components || []).join(' '), (d.tags || []).join(' ')].join(' ').toLowerCase();
+      const hay = [d.description, d.title, d.file, titleFromFile(d.file),
+                   (d.components || []).join(' '), (d.tags || []).join(' '),
+                   (d.ideas || []).join(' '), (d.usage || []).join(' ')].join(' ').toLowerCase();
       if (!hay.includes(searchQuery)) return false;
     }
     return true;
@@ -974,11 +1045,11 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
       const compsAll = (d.components || []).slice(0, 6).join(' · ');
       work.innerHTML = `
         <div class="frame">
-          <img loading="lazy" src="screenshots/${d.file}" alt="${titleFromFile(d.file)} — UI screenshot">
+          <img loading="lazy" src="screenshots/${d.file}" alt="${titleOf(d)} — UI screenshot">
         </div>
         <figcaption class="placard">
           <span class="placard-no">No. ${plateNo(d.file)}</span>
-          <span class="placard-title">${titleFromFile(d.file)}</span>
+          <span class="placard-title">${titleOf(d)}</span>
           <span class="placard-meta">${metaLine(d)}</span>
           <div class="placard-info"><div>
             ${desc ? `<p class="pi-desc">${desc}</p>` : ''}
@@ -1002,16 +1073,23 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
   function openModal(d) {
     document.getElementById('modalImg').src = 'screenshots/' + d.file;
     document.getElementById('modalNo').textContent = 'No. ' + plateNo(d.file);
-    document.getElementById('modalTitle').textContent = titleFromFile(d.file);
+    document.getElementById('modalTitle').textContent = titleOf(d);
     document.getElementById('modalDesc').textContent = d.description || 'No description.';
     document.getElementById('modalTags').innerHTML =
       (d.tags || []).map(t => `<span>${t}</span>`).join('') || '<span>—</span>';
     document.getElementById('modalComps').innerHTML =
       (d.components || []).map(c => `<span>${c}</span>`).join('') || '<span>—</span>';
-    document.getElementById('modalLayout').textContent = d.layout || '—';
-    document.getElementById('modalHero').textContent = d.hero || '—';
-    document.getElementById('modalType').textContent = d.typography || '—';
-    document.getElementById('modalPalette').textContent = d.palette || '—';
+    hideEmptyFact('modalLayout', d.layout);
+    hideEmptyFact('modalHero', d.hero);
+    hideEmptyFact('modalType', d.typography);
+    document.getElementById('modalLayout').textContent = d.layout || '';
+    document.getElementById('modalHero').textContent = d.hero || '';
+    document.getElementById('modalType').textContent = d.typography || '';
+    const paletteEl = document.getElementById('modalPalette');
+    paletteEl.classList.remove('p-swatches');
+    paletteEl.innerHTML = '';
+    renderPalette(paletteEl, d.palette);
+    hideEmptyFact('modalPalette', paletteEl.textContent && paletteEl.textContent !== '—');
     const usage = d.usage || [];
     document.getElementById('modalUsage').innerHTML =
       usage.map(i => `<li>${i}</li>`).join('') || '<li>No use cases captured yet.</li>';

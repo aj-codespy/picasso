@@ -52,11 +52,12 @@ CHUNK = 1024 * 1024
 PROMPT = """You are a design curator building a design inspiration library. Analyze this UI screenshot in detail — the page structure, the hero, the components, and where this design pattern would be used.
 
 Respond with a JSON object with EXACTLY these keys (no other keys):
+- "title": a short human-readable title for this work, 3-9 words, no markdown (e.g. "Aurora SaaS Landing Page")
 - "description": 1-2 sentences on the overall design style and intent (e.g. "A calm SaaS landing page that pairs warm cream surfaces with a burnt-orange accent; editorial spacing gives it a premium, trust-first feel.")
 - "layout": the page structure in one line — nav position, hero treatment, section rhythm (e.g. "Sticky top nav, full-bleed hero, 3-column feature grid, split CTA band, 5-column footer")
 - "hero": what the hero section does — headline pattern, subcopy role, CTA structure, visual treatment; use null when there is no hero
 - "components": every UI element you can identify (navbar, hero, sidebar, card-grid, pricing-table, testimonial, product-gallery, form, search-bar, stats, logo, CTA-button, chat-widget, dashboard-chart, table, avatar, breadcrumb, modal, carousel, accordion, badge, tooltip, tabs, pagination, footer, ...). List 6-12 items.
-- "palette": colors and tones with approximate hex where helpful (e.g. "warm cream #FAF7F2 base, deep charcoal #131110 text, burnt-orange #F97316 accent on dark surfaces")
+- "palette": EXACTLY a JSON array of swatch objects describing the design's colors, each with EXACTLY these keys: "hex" (the 7-character hex like "#F97316"; approximate the closest dominant value if the screenshot doesn't carry it verbatim), "name" (a short human name like "burnt-orange"), "role" (base/fill, text, accent, surface, border, or the element it applies to). List 3-6 swatches covering the dominant colors of the design. (e.g. [{"hex":"#FAF7F2","name":"warm-cream","role":"base"},{"hex":"#F97316","name":"burnt-orange","role":"accent"}])
 - "typography": font character — style, weight contrast, size rhythm (e.g. "serif display headlines with sans body; strong weight contrast; generous line-height")
 - "tags": 5-8 design jargon tags, chosen from: minimalist, brutalist, premium, editorial, clean, dark-mode, saas, e-commerce, neumorphic, glassmorphism, bold-typography, monochrome, vibrant, playful, corporate, luxury, tech, dashboard, mobile-first, landing-page, portfolio, ai-saas, gradient, flat-design, skeuomorphic, retro, futuristic, material, apple-style, stripe-style, linear-style, notch, sidebar, bento, glass, 3d, illustration-heavy, typographic, spaced-out, dense, airy, warm, cool, earthy, pastel, neon, gold-accent
 - "usage": 2-3 concrete contexts where this design could be used, each a short phrase starting with a verb (e.g. "Use for a SaaS landing page that needs to feel trustworthy", "Use as the shell for a B2B dashboard", "Use for an onboarding flow that should feel light")
@@ -225,7 +226,7 @@ def analyze_image(provider, api_key, model, image_path, retries=3):
                 text = google_generate_content(api_key, model, image_path)
             else:
                 text = chat_completion(spec["url"], api_key, model, image_path)
-            return clean_json(text)
+            return normalize_analysis(clean_json(text))
         except urllib.error.HTTPError as e:
             body = e.read().decode()[:300]
             last_err = f"HTTP {e.code}: {body}"
@@ -237,6 +238,78 @@ def analyze_image(provider, api_key, model, image_path, retries=3):
             last_err = str(e)
             time.sleep(3 * (attempt + 1))
     raise RuntimeError(f"Failed after {retries} retries: {last_err}")
+
+
+_HEX_RE = re.compile(r"#[0-9a-fA-F]{6}\b")
+
+
+def normalize_analysis(a):
+    """Coerce a raw LLM analysis into the shape the gallery expects.
+
+    Two things the UI depends on that older or lazy models omit:
+    - `title`: short human-readable heading. Derive from description when the
+      model didn't provide one so the modal never shows a bare "Design N".
+    - `palette`: list of {hex,name,role} swatches. If the model returned prose
+      (or a list without hexes), extract hex codes so the gallery renders real
+      color chips instead of "—".
+    """
+    a = dict(a or {})
+
+    if not a.get("title"):
+        desc = (a.get("description") or "").strip()
+        a["title"] = _title_from_description(desc)
+
+    palette = a.get("palette")
+    if isinstance(palette, str):
+        # Legacy / prose palette: "warm cream #FAF7F2 base, ...". Yield swatches
+        # only when real hex codes are present; otherwise keep the prose so the
+        # gallery still has something to show (never fabricate hex).
+        swatches = _hex_swatches_from_prose(palette)
+        a["palette"] = swatches if swatches else palette
+    elif isinstance(palette, list):
+        clean = []
+        for sw in palette:
+            if isinstance(sw, str):
+                # Model returned bare hex strings — promote to swatch objects.
+                m = _HEX_RE.search(sw)
+                c = m.group(0) if m else sw
+                clean.append({"hex": c, "name": "", "role": ""})
+            elif isinstance(sw, dict) and sw.get("hex"):
+                m = _HEX_RE.search(str(sw["hex"]))
+                clean.append({
+                    "hex": m.group(0) if m else str(sw["hex"]),
+                    "name": str(sw.get("name", "") or ""),
+                    "role": str(sw.get("role", "") or ""),
+                })
+        a["palette"] = clean
+    else:
+        a["palette"] = ""
+
+    return a
+
+
+def _title_from_description(desc):
+    """Headline from the first clause of a description, capped to title length."""
+    if not desc:
+        return "Untitled work"
+    head = desc.split(".")[0].strip(" ,;:-")
+    words = head.split()
+    # Keep the first ~3 meaningful words of the subject, drop filler.
+    if len(words) > 6:
+        head = " ".join(words[:6]).rstrip(",") + "…"
+    return head or "Untitled work"
+
+
+def _hex_swatches_from_prose(prose):
+    swatches = []
+    for hexcode in re.findall(r"#[0-9a-fA-F]{6}\b", prose):
+        # Grab the word just before the hex as a rough color name when present.
+        m = re.search(r"([A-Za-z-]+)\s*" + re.escape(hexcode), prose)
+        name = m.group(1) if m else ""
+        swatches.append({"hex": hexcode, "name": name, "role": ""})
+    if swatches:
+        return swatches
+    return []
 
 
 # ---------------------------------------------------------------------------

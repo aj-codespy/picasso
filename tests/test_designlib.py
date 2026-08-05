@@ -186,6 +186,46 @@ class TestPromptSchema(unittest.TestCase):
             self.assertGreater(len(line), len(key) + 12, f"key {key} lacks a spec")
 
 
+class TestNormalizeAnalysis(unittest.TestCase):
+    def test_derives_title_from_description_when_missing(self):
+        a = dl.normalize_analysis({"description": "A calm SaaS landing page."})
+        self.assertEqual(a["title"], "A calm SaaS landing page")
+
+    def test_derives_untitled_for_empty(self):
+        self.assertEqual(dl.normalize_analysis({})["title"], "Untitled work")
+
+    def test_truncates_long_description_title(self):
+        a = dl.normalize_analysis({
+            "description": "A calm SaaS landing page that pairs warm cream surfaces with a burnt-orange accent; editorial spacing gives it a premium, trust-first feel.",
+        })
+        self.assertLessEqual(len(a["title"].split()), 7)
+        self.assertTrue(a["title"].endswith("…"))
+
+    def test_prose_palette_extracts_hex_swatches(self):
+        a = dl.normalize_analysis({
+            "palette": "warm cream #FAF7F2 base, deep charcoal #131110 text, burnt-orange #F97316 accent",
+        })
+        hexes = [s["hex"] for s in a["palette"]]
+        self.assertEqual(hexes, ["#FAF7F2", "#131110", "#F97316"])
+        self.assertTrue(all(s["name"] or s["role"] for s in a["palette"]))
+
+    def test_list_of_dict_swatches_preserved(self):
+        a = dl.normalize_analysis({
+            "palette": [{"hex": "#F97316", "name": "burnt-orange", "role": "accent"}],
+        })
+        self.assertEqual(a["palette"][0]["hex"], "#F97316")
+        self.assertEqual(a["palette"][0]["role"], "accent")
+
+    def test_prose_palette_without_hex_keeps_prose(self):
+        # Never fabricate hex: a prose palette with no hex stays readable text.
+        a = dl.normalize_analysis({"palette": "warm cream and charcoal tones"})
+        self.assertEqual(a["palette"], "warm cream and charcoal tones")
+
+    def test_malformed_palette_yields_empty_string(self):
+        for bad in [None, 42]:
+            self.assertEqual(dl.normalize_analysis({"palette": bad})["palette"], "")
+
+
 class TestPlanUpdates(unittest.TestCase):
     def _make_img(self, td, name, content):
         p = Path(td) / name
