@@ -457,5 +457,64 @@ class TestVersionFlag(unittest.TestCase):
         self.assertIn(dl.VERSION, buf.getvalue())
 
 
+class TestInstalledLauncher(unittest.TestCase):
+    """B1 regression: the installed `picasso` command must resolve the real
+    launcher path even when invoked through the symlink created by
+    install.sh (or the copy on Windows). Running `picasso --version` from a
+    different cwd must find designlib.py next to the REAL launcher, not the
+    symlink location. Offline: we pre-create a fake .venv/bin/python marker so
+    the launcher skips the pip/google-genai bootstrap."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.PICASSO = Path(__file__).resolve().parent.parent / "picasso"
+
+    def _make_venv_marker(self, root):
+        """Pretend a venv already exists so the launcher skips pip+network."""
+        bin_dir = root / ".venv" / "bin"
+        bin_dir.mkdir(parents=True, exist_ok=True)
+        link = bin_dir / "python"
+        if not link.exists() or os.path.islink(link):
+            try:
+                link.unlink()
+            except FileNotFoundError:
+                pass
+            os.symlink(sys.executable, link)
+
+    def test_symlinked_launcher_runs_from_other_cwd(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            work, workbin = tmp / "work", tmp / "bin"
+            work.mkdir()
+            workbin.mkdir()
+
+            # A stub designlib.py that prints a marker and exits 0.
+            (work / "designlib.py").write_text(
+                "print('DESIGNLIB_FOUND')\n"
+            )
+            # Install the real launcher into work/, link it into bin/ (the
+            # ~/.local/bin equivalent that install.sh creates).
+            shutil.copy(self.PICASSO, work / "picasso")
+            os.symlink(work / "picasso", workbin / "picasso")
+
+            # Venv marker in BOTH places: the real location (fixed code looks
+            # here after resolving the symlink) and the buggy location (old
+            # code cds into bin/). Ensures the RED state fails only on the
+            # directory resolution, not on venv bootstrap.
+            self._make_venv_marker(work)
+            self._make_venv_marker(workbin)
+
+            # Invoke through the symlink, cwd NOT the launcher's dir.
+            result = subprocess.run(
+                ["bash", str(workbin / "picasso"), "--version"],
+                cwd=tmp, capture_output=True, text=True, timeout=120,
+            )
+            self.assertEqual(
+                result.returncode, 0,
+                f"launcher failed:\nstdout={result.stdout}\nstderr={result.stderr}",
+            )
+            self.assertIn("DESIGNLIB_FOUND", result.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -10,7 +10,16 @@ if defined LOCALAPPDATA (
 )
 
 if not exist "%TARGET%" mkdir "%TARGET%"
-copy /Y "%~dp0picasso.cmd" "%TARGET%\picasso.cmd" >nul
+
+rem The installed command is a shim that delegates back to the real launcher in
+rem this repo folder - copying picasso.cmd alone would break it, because the
+rem copy's designlib.py / .venv live next to the ORIGINAL, not in %TARGET%.
+rem Substitution happens in PowerShell (reads the template raw, so the shim's
+rem own %* arg-forwarding survives untouched; a for /f loop would eat it).
+powershell -NoProfile -Command ^
+  "$t = Get-Content -Raw '%~dp0install\picasso-shim.tpl';" ^
+  "$t = $t.Replace('__REPO_DIR__', '%~dp0'.TrimEnd('\'));" ^
+  "Set-Content -Path '%TARGET%\picasso.cmd' -Value $t -NoNewline"
 
 rem Add %TARGET% to the USER PATH if missing. Done in PowerShell so the PATH is
 rem read-modify-written without truncation (setx would clip it at 1024 chars).

@@ -42,3 +42,23 @@ jobs:
         if: runner.os == 'Windows'
         shell: cmd
         run: picasso.cmd --version
+
+      # B1 regression: the INSTALLED command (symlink on POSIX, shim copy on
+      # Windows) must resolve the real launcher path, so running `picasso`
+      # from a DIFFERENT cwd than the repo works. install.sh/install.bat
+      # create that state; here we re-run --version from a fresh cwd.
+      - name: Differential-cwd launcher smoke (POSIX install)
+        if: runner.os != 'Windows'
+        run: |
+          ./install.sh
+          export PATH="$HOME/.local/bin:$PATH"
+          cd "$RUNNER_TEMP"
+          picasso --version
+
+      - name: Differential-cwd launcher smoke (Windows install)
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: |
+          install.bat
+          cd %RUNNER_TEMP%
+          "%LOCALAPPDATA%\picasso\picasso.cmd" --version

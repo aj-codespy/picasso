@@ -2,7 +2,17 @@
 # Picasso launcher — creates its own venv on first run, then runs the CLI.
 # Install once with:  ./install.sh   (symlinks picasso into ~/.local/bin)
 set -euo pipefail
-cd "$(dirname "$0")"
+
+# Resolve the REAL location of this script. When run as the installed `picasso`
+# command (symlinked into ~/.local/bin by install.sh), "$0" is the symlink path
+# — cd-ing to its dir would chdir into ~/.local/bin (or the copy on Windows),
+# where designlib.py / .venv do not exist. Follow the link first.
+resolve() {
+    # readlink -f isn't portable (missing the -f on macOS/BSD); use python3,
+    # which this launcher requires anyway.
+    python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$1"
+}
+cd "$(dirname "$(resolve "$0")")"
 
 PY="${PYTHON:-python3}"
 VENV=".venv"
