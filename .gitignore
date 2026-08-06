@@ -24,10 +24,11 @@ PRODUCT.md
 IDEA.md
 
 # legacy scripts — superseded by designlib.py (hardcode a personal env path)
-src/picasso/add_design.py
-src/picasso/batch_analyze.py
-src/picasso/analyze.py
-src/picasso/nim_peek.py
+# (still live at src/ root; never committed)
+src/add_design.py
+src/batch_analyze.py
+src/analyze.py
+src/nim_peek.py
 
 .env
 __pycache__/
