@@ -37,7 +37,7 @@ import urllib.request
 import webbrowser
 from pathlib import Path
 
-VERSION = "1.0.0"
+VERSION = "1.7.0"
 
 ROOT = Path(__file__).resolve().parent
 SCREENSHOTS_DIR = ROOT / "src" / "screenshots"

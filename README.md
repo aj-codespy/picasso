@@ -1,6 +1,6 @@
 # Picasso — your personal design-inspiration library
 
-*Version 1.0.0 — `picasso --version`*
+*Version 1.7.0 (`picasso --version`) — the "delight" release*
 
 Drop screenshots into a folder, run one command, and Picasso turns them into a
 beautiful, searchable design gallery — every screenshot analyzed by a vision
@@ -108,13 +108,30 @@ a library that already has works unless you pass `--force`.
 
 ## The gallery
 
-- **Wall view** — works in flex rows; hovering a work grows it to ~5/8 of its
-  row while its neighbors recede (nothing dims). Click opens the viewing room.
-- **Catalogue view** — list with full descriptions.
-- **Browse by vocabulary** — every analyzed tag becomes a filter chip with counts.
-- **Search** — instant full-text filter across descriptions and tags.
-- **Marquee** — the tag cloud scrolls by; pauses on hover; respects
-  `prefers-reduced-motion`.
+- **Wall view** — works hang in rows; hovering a work focuses it with a
+  cursor-tracked zoom and a soft spotlight (transform-only — zero layout
+  shift). Click a work to enter its viewing room via a FLIP blow-up animation.
+- **Viewing room** — full-size detail with catalogue number, ink placard,
+  description, components, palette swatches, typography, use cases, and ideas.
+  Navigate with `←` / `→` or the room nav; close with `Esc`. Deep-link any
+  work: `#design-07`.
+- **Browse by vocabulary** — every analyzed tag becomes a filter chip with
+  counts; **browse by structure** — the component taxonomy (Navigation,
+  Content, Interaction, Data, Identity) filters OR-within, AND-across tags
+  and search. Every filter combo is a shareable deep link
+  (`#tag=clean&facets=Data&q=dashboard`).
+- **Search** — debounced instant full-text filter across descriptions and
+  tags, with result counts and per-term highlighting. `/` or `Cmd/Ctrl-K`
+  focuses search from anywhere.
+- **Favorites & notes** — star any work and jot private notes; both persist
+  in a user-owned `meta.json` overlay.
+- **Marquee** — the tag cloud scrolls by and pauses on hover; the whole
+  gallery respects `prefers-reduced-motion`.
+- **Motion system** — GSAP (vendored locally, no CDN) powers the spotlight,
+  scroll-row hang, FLIP modal, hero word-split entrance, chip cascade, and a
+  pinned How-it-works reveal — with a film-grain finish and gallery
+  baseboard. Falls back to a fully-static, animated gallery if GSAP is absent
+  or reduced motion is on.
 
 ## Project layout
 
@@ -137,7 +154,7 @@ picasso/
 ## Development
 
 ```bash
-python3 -m unittest tests.test_designlib -v   # 41 tests, no network
+python3 -m unittest tests.test_designlib -v   # 57 tests, no network
 ```
 
 ## FAQ
