@@ -1,6 +1,6 @@
 # Picasso — your personal design-inspiration library
 
-*Version 1.7.0 (`picasso --version`) — the "delight" release*
+*Version 1.8.0 (`picasso --version`) — the PyPI release: installable via `pip`, gallery + CLI in one package*
 
 Drop screenshots into a folder, run one command, and Picasso turns them into a
 beautiful, searchable design gallery — every screenshot analyzed by a vision
@@ -24,6 +24,22 @@ hover to focus, click to enter the viewing room, filter by design vocabulary.
 
 ## Quick start
 
+### Option A — pip (the packaged release)
+
+```bash
+# Any Python 3.9+ — installs the `picasso` command + the whole gallery
+pip install picasso-design-gallery
+
+# One-time setup: pick a provider, paste your API key, pick a model,
+# and paste the path of your screenshots folder
+picasso setup
+
+# Point Picasso at your screenshots (any .png / .jpg / .jpeg / .webp):
+picasso update
+```
+
+### Option B — from source (this repo)
+
 ```bash
 # 1. Get the code
 git clone https://github.com/aj-codespy/picasso && cd picasso
@@ -39,8 +55,9 @@ picasso setup
 picasso update
 ```
 
-The first `picasso` run creates its own Python virtual environment (`.venv`) —
-no manual Python setup.
+With Option B, the first `picasso` run creates its own Python virtual
+environment (`.venv`) — no manual Python setup. (Option A runs in whatever
+environment you `pip install`ed into.)
 
 ### Windows
 
