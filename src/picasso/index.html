@@ -289,6 +289,24 @@
   }
   .view-toggle button:hover { color: var(--ink-soft); }
   .view-toggle button.active { color: var(--ink); border-bottom-color: var(--accent-deep); }
+  .saved-toggle { /* the "Saved" re-find switch — matches the view-toggle rail */
+    background: transparent;
+    border: none;
+    color: var(--faint);
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid transparent;
+    transition: color .15s, border-color .15s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .saved-toggle:hover { color: var(--ink-soft); }
+  .saved-toggle.on { color: var(--ink); border-bottom-color: var(--accent-deep); }
+  .saved-toggle.on .saved-star { color: var(--accent); }
+  .saved-count { color: var(--accent); font-variant-numeric: tabular-nums; }
 
   /* ---------- Index (vocabulary directory) ---------- */
   .index-section {
@@ -592,6 +610,14 @@
     letter-spacing: 0.05em;
     text-transform: uppercase;
     color: #A9A294;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .pi-note {
+    margin-top: 10px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.02em;
+    color: var(--accent);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
 
@@ -1105,6 +1131,9 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     <button data-view="grid" class="active" title="Wall view">Wall</button>
     <button data-view="list" title="Catalogue view">Catalogue</button>
   </div>
+  <button type="button" class="saved-toggle" id="savedToggle" aria-pressed="false" data-role="saved" title="Show only saved works">
+    <span class="saved-star" aria-hidden="true">★</span> Saved <span class="saved-count" id="savedCount" hidden></span>
+  </button>
 </div>
 
 <section class="index-section" aria-label="Design vocabulary index">
@@ -1200,6 +1229,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
 
   let activeTag = 'all';
   let searchQuery = '';
+  let savedOnly = false;   // Saved re-find filter (surfaces favorited works)
   let view = 'grid';
   let filteredList = [];   // last render's filtered works (modal prev/next walk)
   let searchTimer = null;  // input debounce
@@ -1382,12 +1412,28 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     if (f[plate]) delete f[plate]; else f[plate] = true;
     saveMeta();
     document.querySelectorAll(`.fav-star[data-fav="${plate}"]`).forEach(b => setFavUI(b, plate));
+    // In the Saved re-find view a de-star must drop the work off the wall now.
+    if (savedOnly) render(); else syncSavedUI(filteredList.length);
   }
   function metaLine(d) {
     const comps = (d.components || []).slice(0, 3).join(' · ');
     const n = (d.tags || []).length;
     const tagWord = n === 1 ? 'tag' : 'tags';
     return comps ? `${comps} — ${n} ${tagWord}` : `${n} ${tagWord}`;
+  }
+  function noteText(d) { return (META.notes && META.notes[plateNo(d.file)]) || ''; }
+  function savedCount() { return Object.keys(META.favorites || {}).length; }
+  // Keep the Saved toggle and its counter honest on every render.
+  function syncSavedUI(shown) {
+    const btn = document.getElementById('savedToggle');
+    if (!btn) return;
+    const n = savedCount();
+    btn.classList.toggle('on', savedOnly);
+    btn.setAttribute('aria-pressed', String(savedOnly));
+    const badge = document.getElementById('savedCount');
+    badge.hidden = n === 0;
+    badge.textContent = n;
+    if (savedOnly) countEl.textContent = `${shown} saved ${shown === 1 ? 'work' : 'works'}`;
   }
   function tagCounts() {
     const map = new Map();
@@ -1401,6 +1447,8 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
   }
   function matches(d) {
     if (activeTag !== 'all' && !(d.tags || []).includes(activeTag)) return false;
+    // Saved re-find gate: when active, only works the user starred pass.
+    if (savedOnly && !isFav(plateNo(d.file))) return false;
     // Structure facets: OR within the dimension (any selected facet matches);
     // AND with the vocabulary tag above and the search below.
     if (activeFacets.size) {
@@ -1413,10 +1461,13 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
       const pal = Array.isArray(d.palette)
         ? d.palette.map(s => `${s.name || ''} ${s.hex || ''}`).join(' ')
         : (d.palette || '');
+      // Private notes join the haystack so a saved work is re-findable by what
+      // was written about it ("revamp this", a client name, a date…).
+      const note = (META.notes && META.notes[plateNo(d.file)]) || '';
       const hay = [d.description, d.title, d.file, titleFromFile(d.file),
                    (d.components || []).join(' '), (d.tags || []).join(' '),
                    (d.ideas || []).join(' '), (d.usage || []).join(' '),
-                   pal].join(' ').toLowerCase();
+                   pal, note].join(' ').toLowerCase();
       // Multi-term search: EVERY whitespace-separated token must match (AND).
       // Each token matches as a substring OR a word-boundary prefix, so
       // "dashboard analytics" now finds works mentioning both, and "dashb"
@@ -1529,6 +1580,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     filteredList = filtered;
     countEl.textContent = `${filtered.length} of ${DESIGNS.length} ${DESIGNS.length === 1 ? 'work' : 'works'}`;
     document.getElementById('searchClear').hidden = !searchQuery;
+    syncSavedUI(filtered.length);
     if (!DESIGNS.length) {
       grid.className = 'grid';
       grid.innerHTML = emptyRoomHTML();
@@ -1571,6 +1623,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
             ${desc ? `<p class="pi-desc">${highlight(desc)}</p>` : ''}
             ${tagsAll ? `<div class="pi-tags">${tagsAll}</div>` : ''}
             ${compsAll ? `<div class="pi-comps">${compsAll}</div>` : ''}
+            ${noteText(d) ? `<p class="pi-note">✎ ${escapeHtml(noteText(d))}</p>` : ''}
           </div></div>
         </figcaption>`;
       work.addEventListener('click', () => openModal(d, work));
@@ -1832,9 +1885,22 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     pill.focus();
     if (!fromHistory) writeDesignHash(plate);
   }
+  // Persist whatever is in the note field for the current room. Called on
+  // blur AND on teardown so Escape / backdrop / Back never lose a typed note.
+  function persistNote() {
+    if (!currentNotePlate) return;
+    const el = document.getElementById('modalNote');
+    if (!el) return;
+    const v = el.value.trim();
+    const notes = META.notes || (META.notes = {});
+    if (v) notes[currentNotePlate] = v; else delete notes[currentNotePlate];
+    saveMeta();
+  }
   // Close the room UI (no history write). Used on Back/forward so the
   // placeholder is never re-pushed.
   function teardownRoom() {
+    persistNote();
+    if (savedOnly) render(); else syncSavedUI(filteredList.length);
     backdrop.classList.remove('open');
     document.body.style.overflow = '';
     setPageInert(false);
@@ -1911,6 +1977,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     if (activeTag !== 'all') parts.push('tag=' + encodeURIComponent(activeTag));
     if (activeFacets.size) parts.push('facets=' + [...activeFacets].map(encodeURIComponent).join(','));
     if (searchQuery) parts.push('q=' + encodeURIComponent(searchQuery));
+    if (savedOnly) parts.push('saved=1');
     const h = parts.length ? '#' + parts.join('&') : '';
     try { history.pushState(null, '', h || window.location.href.split('#')[0]); } catch (_) {}
   }
@@ -1934,6 +2001,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
       activeTag = 'all';
       activeFacets.clear();
       searchQuery = '';
+      savedOnly = false;
       if (searchInput.value !== '') searchInput.value = '';
       renderTags(); renderFacets(); render();
       return;
@@ -1943,6 +2011,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     activeFacets.clear();
     (params.get('facets') || '').split(',').forEach(f => { if (f) activeFacets.add(f); });
     searchQuery = params.get('q') || '';
+    savedOnly = params.get('saved') === '1';
     if (searchInput.value !== searchQuery) searchInput.value = searchQuery;
     renderTags(); renderFacets(); render();
   }
@@ -1981,6 +2050,11 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     document.getElementById('searchClear').hidden = true;
     render(); writeFilterHash();
     searchInput.focus();
+  });
+  // Saved re-find toggle: flip the favorites-only view.
+  document.getElementById('savedToggle').addEventListener('click', () => {
+    savedOnly = !savedOnly;
+    render(); writeFilterHash();
   });
   // Keyboard: "/" and Cmd/Ctrl+K focus search (unless typing); Esc blurs it.
   document.addEventListener('keydown', e => {
