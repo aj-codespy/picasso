@@ -1677,12 +1677,14 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
 
     const pill = document.getElementById('modalClose');
     pill.focus();
+    writeDesignHash(plate);
   }
   function closeModal() {
     backdrop.classList.remove('open');
     document.body.style.overflow = '';
     setPageInert(false);
     if (lastTrigger && lastTrigger.isConnected) lastTrigger.focus();
+    writeFilterHash();
   }
   backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(); });
   document.getElementById('modalClose').addEventListener('click', closeModal);
@@ -1731,15 +1733,51 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     const b = e.target.closest('.index-item');
     if (!b) return;
     activeTag = b.dataset.tag;
-    renderTags(); render();
+    renderTags(); render(); writeFilterHash();
   });
   facetbar.addEventListener('click', e => {
     const b = e.target.closest('.index-item');
     if (!b) return;
     const f = b.dataset.facet;
     if (activeFacets.has(f)) activeFacets.delete(f); else activeFacets.add(f);
-    renderFacets(); render();
+    renderFacets(); render(); writeFilterHash();
   });
+
+  // ---------- Deep links ----------
+  // #design-07 opens that work's room directly; #tag=..&facets=a,b&q=.. restores
+  // a filtered wall. Filter changes and modal opens rewrite the hash so any
+  // state is shareable; hashchange handles pasted URLs and back/forward.
+  function writeFilterHash() {
+    const parts = [];
+    if (activeTag !== 'all') parts.push('tag=' + encodeURIComponent(activeTag));
+    if (activeFacets.size) parts.push('facets=' + [...activeFacets].map(encodeURIComponent).join(','));
+    if (searchQuery) parts.push('q=' + encodeURIComponent(searchQuery));
+    const h = parts.length ? '#' + parts.join('&') : '';
+    try { history.replaceState(null, '', h || window.location.href.split('#')[0]); } catch (_) {}
+  }
+  function writeDesignHash(plate) {
+    try { history.replaceState(null, '', '#design-' + plate); } catch (_) {}
+  }
+  function applyHash() {
+    const h = (location.hash || '').replace(/^#/, '');
+    const isDesign = /^design-\d{2}$/.test(h);
+    if (backdrop.classList.contains('open') && !isDesign) closeModal();
+    if (isDesign) {
+      const plate = h.slice('design-'.length);
+      const d = DESIGNS.find(x => plateNo(x.file) === plate);
+      if (d) openModal(d, null);
+      return;
+    }
+    if (!h) return; // bare hash → defaults
+    const params = new URLSearchParams(h);
+    activeTag = params.get('tag') || 'all';
+    activeFacets.clear();
+    (params.get('facets') || '').split(',').forEach(f => { if (f) activeFacets.add(f); });
+    searchQuery = params.get('q') || '';
+    if (searchInput.value !== searchQuery) searchInput.value = searchQuery;
+    renderTags(); renderFacets(); render();
+  }
+  window.addEventListener('hashchange', applyHash);
   grid.addEventListener('click', e => {
     const chip = e.target.closest('.cmd-chip');
     if (!chip) return;
@@ -1765,14 +1803,14 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     clearTimeout(searchTimer);
     searchTimer = setTimeout(() => {
       searchQuery = e.target.value.trim().toLowerCase();
-      render();
+      render(); writeFilterHash();
     }, 120);
   });
   document.getElementById('searchClear').addEventListener('click', () => {
     searchQuery = '';
     searchInput.value = '';
     document.getElementById('searchClear').hidden = true;
-    render();
+    render(); writeFilterHash();
     searchInput.focus();
   });
   // Keyboard: "/" and Cmd/Ctrl+K focus search (unless typing); Esc blurs it.
@@ -1817,6 +1855,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     renderTags();
     renderFacets();
     render();
+    applyHash(); // honor pasted /navigated deep link on cold load
   });
 </script>
 </body>
