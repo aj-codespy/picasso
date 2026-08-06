@@ -13,6 +13,9 @@ src/meta.json
 # local backup of a generated library
 data/library.backup.json
 
+# generated dist bundle (contains mirrors of your screenshots — rebuild locally)
+dist/
+
 # corrupt-file recovery backups (see designlib._recover_corrupt)
 data/*.corrupt-*
 
