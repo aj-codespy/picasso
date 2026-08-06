@@ -16,8 +16,8 @@ from unittest import mock
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
 
-import designlib as dl
-import sync_data
+import picasso.designlib as dl
+import picasso.sync_data as sync_data
 
 
 class TestProviderRegistry(unittest.TestCase):
@@ -462,7 +462,7 @@ class TestResyncFailure(unittest.TestCase):
     """resync() must warn and return False on failure — never crash update."""
 
     # an existing script so resync takes the subprocess path, not the noop branch
-    EXISTING = Path("src/sync_data.py")
+    EXISTING = Path("src/picasso/sync_data.py")
 
     def test_resync_returns_true_on_success(self):
         with mock.patch.object(dl, "SYNC_SCRIPT", self.EXISTING), \
@@ -658,9 +658,16 @@ class TestInstalledLauncher(unittest.TestCase):
             work.mkdir()
             workbin.mkdir()
 
-            # A stub designlib.py that prints a marker and exits 0.
-            (work / "designlib.py").write_text(
+            # A stub package that prints a marker and exits 0. The launcher runs
+            # `python -m picasso` with PYTHONPATH=$PWD/src, so the marker lives
+            # in src/picasso/__init__.py of the "installed" copy (imported by
+            # __main__.py).
+            (work / "src" / "picasso").mkdir(parents=True)
+            (work / "src" / "picasso" / "__init__.py").write_text(
                 "print('DESIGNLIB_FOUND')\n"
+            )
+            (work / "src" / "picasso" / "__main__.py").write_text(
+                "from . import *\n"
             )
             # Install the real launcher into work/, link it into bin/ (the
             # ~/.local/bin equivalent that install.sh creates).

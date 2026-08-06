@@ -35,4 +35,9 @@ if [ ! -x "$VENV/bin/python" ]; then
     echo "Virtual environment ready."
 fi
 
-exec "$VENV/bin/python" designlib.py "$@"
+# Run the package from the repo (src/ layout). PYTHONPATH points at src/ so
+# `python -m picasso` resolves the importable package; assets (index.html,
+# data/, screenshots/) are located relative to the module itself.
+export PYTHONPATH="$PWD/src${PYTHONPATH:+:$PYTHONPATH}"
+
+exec "$VENV/bin/python" -m picasso "$@"

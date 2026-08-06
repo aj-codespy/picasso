@@ -24,8 +24,9 @@ deploy or share at your discretion. Rebuild it anytime (from the repo root):
 ./scripts/build-dist.sh   # regenerate dist/ from src/
 ```
 
-(Or recreate manually: copy `src/index.html`, `src/data.js`,
-`src/vendor/`, `src/fonts/`, and `src/screenshots/` into `dist/`.)
+(Or recreate manually: copy `src/picasso/index.html`, `src/picasso/data.js`,
+`src/picasso/vendor/`, `src/picasso/fonts/`, and `src/picasso/screenshots/`
+into `dist/`.)
 
 ## Deep links work out of the box
 

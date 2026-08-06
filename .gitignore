@@ -2,32 +2,32 @@
 # (generated data; screenshots are never committed)
 
 # user screenshots — never commit these
-src/screenshots/*.png
-src/screenshots/*.jpg
-src/screenshots/*.jpeg
-src/screenshots/*.webp
+src/picasso/screenshots/*.png
+src/picasso/screenshots/*.jpg
+src/picasso/screenshots/*.jpeg
+src/picasso/screenshots/*.webp
 
 # user-owned favorites + notes overlay (best-effort persistence)
-src/meta.json
+src/picasso/meta.json
 
 # local backup of a generated library
-data/library.backup.json
+src/picasso/data/library.backup.json
 
 # generated dist bundle (contains mirrors of your screenshots — rebuild locally)
 dist/
 
 # corrupt-file recovery backups (see designlib._recover_corrupt)
-data/*.corrupt-*
+src/picasso/data/*.corrupt-*
 
 # private planning docs (superseded by README)
 PRODUCT.md
 IDEA.md
 
 # legacy scripts — superseded by designlib.py (hardcode a personal env path)
-src/add_design.py
-src/batch_analyze.py
-src/analyze.py
-src/nim_peek.py
+src/picasso/add_design.py
+src/picasso/batch_analyze.py
+src/picasso/analyze.py
+src/picasso/nim_peek.py
 
 .env
 __pycache__/

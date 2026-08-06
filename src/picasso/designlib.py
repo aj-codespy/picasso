@@ -2,12 +2,12 @@
 """
 Picasso — a searchable design-inspiration library, generated from your screenshots.
 
-Drop screenshots into src/screenshots/, run `picasso update`, and the CLI:
+Drop screenshots into a folder, run `picasso update`, and the CLI:
   1. asks which vision provider to use (OpenAI / Google / NVIDIA NIM / OpenRouter)
   2. saves your API key once to ~/.designlib/config.json (never in the repo)
   3. analyzes only NEW images (content-hash dedup — renames keep analysis)
-  4. writes data/library.json, regenerates src/data.js
-  5. opens src/index.html in your browser
+  4. writes data/library.json, regenerates data.js
+  5. opens index.html in your browser
 
 Commands:
     picasso setup     choose provider, enter API key, pick model + screenshots folder
@@ -17,7 +17,8 @@ Commands:
 
 The screenshots folder is saved in ~/.designlib/config.json during setup —
 paste any folder path (e.g. ~/Desktop/shots); images are used in place and
-mirrored into src/screenshots/ so the offline gallery can find them.
+mirrored into screenshots/ (next to the gallery) so the offline gallery can
+find them.
 """
 import argparse
 import base64
@@ -37,14 +38,14 @@ import urllib.request
 import webbrowser
 from pathlib import Path
 
-VERSION = "1.7.0"
+VERSION = "1.8.0"
 
 ROOT = Path(__file__).resolve().parent
-SCREENSHOTS_DIR = ROOT / "src" / "screenshots"
+SCREENSHOTS_DIR = ROOT / "screenshots"
 JSON_FILE = ROOT / "data" / "library.json"
 SEED_FILE = ROOT / "data" / "seed.json"
-SYNC_SCRIPT = ROOT / "src" / "sync_data.py"
-INDEX_HTML = ROOT / "src" / "index.html"
+SYNC_SCRIPT = ROOT / "sync_data.py"
+INDEX_HTML = ROOT / "index.html"
 CONFIG_DIR = Path.home() / ".designlib"
 CONFIG_FILE = CONFIG_DIR / "config.json"
 
@@ -410,7 +411,7 @@ def pick_screenshots_dir():
     """Ask where the user's screenshots live — paste a path or press Enter for the default.
 
     The folder is used as-is (no copying into the project); update() mirrors
-    images into src/screenshots/ so the file:// gallery still finds them.
+    images into screenshots/ so the file:// gallery still finds them.
     """
     print("\n  Screenshots folder — where your image files already live.")
     print(f"    Paste a folder path (e.g. ~/Desktop/shots), or press Enter for:\n    {SCREENSHOTS_DIR}")
@@ -431,9 +432,9 @@ def pick_screenshots_dir():
 def mirror_into_gallery(images, shots_dir):
     """Make images from an external folder visible to the file:// gallery.
 
-    index.html loads images relative to src/, so every analyzed image must
-    exist under src/screenshots/. Hardlink first (no disk copy on the same
-    volume), fall back to a copy. Skips files that are already there with
+    index.html loads images relative to the gallery dir, so every analyzed
+    image must exist under screenshots/. Hardlink first (no disk copy on the
+    same volume), fall back to a copy. Skips files that are already there with
     identical content. No-op when the chosen folder IS the default.
 
     Returns (n_linked, n_copied).
@@ -540,7 +541,7 @@ def next_design_number(designs):
 
 
 def resync():
-    """Refresh src/data.js from library.json. Returns True on success.
+    """Refresh data.js from library.json. Returns True on success.
 
     A sync failure only warns — library.json is the source of truth and the
     refresh can be retried later; it must never abort an update run.
@@ -665,7 +666,7 @@ def cmd_update(args):
 
     linked, copied = mirror_into_gallery(images, shots_dir)
     if linked or copied:
-        print(f"  Mirrored {linked + copied} image(s) into src/screenshots/ for the gallery "
+        print(f"  Mirrored {linked + copied} image(s) into screenshots/ for the gallery "
               f"({linked} hardlinked, {copied} copied).")
 
     resync()

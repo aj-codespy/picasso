@@ -16,10 +16,10 @@ hover to focus, click to enter the viewing room, filter by design vocabulary.
 2. **You run** `picasso update`
 3. **Picasso scans only the new ones** — content-hash dedup means re-runs are instant,
    renames keep their analysis, and replaced files are detected and re-analyzed
-4. **A vision model writes the library** — `data/library.json` with a full curator read per
+4. **A vision model writes the library** — `src/picasso/data/library.json` with a full curator read per
    screenshot: description, layout structure, hero analysis, components, palette (with hex),
    typography, design-jargon tags, **use cases** ("use for a…"), and creative ideas
-5. **Your gallery opens in the browser** — double-click `src/index.html` anytime,
+5. **Your gallery opens in the browser** — double-click `src/picasso/index.html` anytime,
    works fully offline (fonts bundled, no server needed)
 
 ## Quick start
@@ -76,7 +76,7 @@ Pick any one at `picasso setup` — the CLI remembers it.
   `DESIGNLIB_API_KEY`, `DESIGNLIB_MODEL` override it.
 - **Your screenshots folder is also saved in that config** — paste any path during
   `picasso setup` (e.g. `~/Desktop/shots`) and your images are used in place, no
-  copying into the project. `update` mirrors them into `src/screenshots/`
+  copying into the project. `update` mirrors them into `src/picasso/screenshots/`
   (hardlink first, copy fallback) so the offline gallery can still find them.
 - Your screenshots are sent **only** to the provider you chose.
 
@@ -137,18 +137,22 @@ a library that already has works unless you pass `--force`.
 
 ```
 picasso/
-├── designlib.py            # the CLI (stdlib-only; Google SDK optional)
+├── src/picasso/
+│   ├── designlib.py        # the CLI (stdlib-only; Google SDK optional)
+│   ├── __init__.py         # package entry (main, VERSION)
+│   ├── index.html          # the gallery — self-contained, file:// works
+│   ├── screenshots/        # ← gallery mirror (hardlinks of your folder; never committed)
+│   ├── data.js             # regenerated from the library
+│   ├── sync_data.py        # library.json → data.js bridge
+│   ├── data/library.json   # the generated library (seed.json ships alongside)
+│   └── fonts/, vendor/     # bundled type + GSAP (no CDN)
 ├── picasso                 # launcher (macOS/Linux) — creates .venv on first run
 ├── picasso.cmd             # launcher (Windows) — same behavior
 ├── install.sh              # symlinks `picasso` into ~/.local/bin (macOS/Linux)
 ├── install.bat             # adds `picasso` to user PATH (Windows)
-├── src/
-│   ├── index.html          # the gallery — self-contained, file:// works
-│   ├── screenshots/        # ← gallery mirror (hardlinks of your folder; never committed)
-│   ├── data.js             # regenerated from the library
-│   └── sync_data.py        # library.json → data.js bridge
-├── data/library.json       # the generated library
-└── tests/                  # unit tests (no network)
+├── scripts/build-dist.sh   # rebuilds the self-contained dist/ bundle
+├── tests/                  # unit tests (no network)
+└── dist/                   # generated deploy bundle (never committed)
 ```
 
 ## Development

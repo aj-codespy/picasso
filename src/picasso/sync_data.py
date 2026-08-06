@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Sync data/library.json -> src/data.js so index.html works via file:// (no server needed)."""
+"""Sync data/library.json -> data.js so index.html works via file:// (no server needed)."""
 import json, os, re, sys
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT = os.path.dirname(os.path.abspath(__file__))
 JSON_PATH = os.path.join(ROOT, "data", "library.json")
-OUT_PATH = os.path.join(ROOT, "src", "data.js")
+OUT_PATH = os.path.join(ROOT, "data.js")
 
 HEX_RE = re.compile(r"#[0-9a-fA-F]{6}\b")
 

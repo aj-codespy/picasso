@@ -35,7 +35,9 @@ if not exist "%VENV_PY%" (
     echo Virtual environment ready.
 )
 
-"%VENV_PY%" designlib.py %*
+set "PYTHONPATH=%CD%\src;%PYTHONPATH%"
+
+"%VENV_PY%" -m picasso %*
 if errorlevel 1 goto :fail
 exit /b 0
 

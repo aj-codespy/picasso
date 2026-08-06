@@ -1204,7 +1204,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
   let filteredList = [];   // last render's filtered works (modal prev/next walk)
   let searchTimer = null;  // input debounce
 
-  // Structure facets (window.FACETS emitted by src/sync_data.py). Multi-select
+  // Structure facets (window.FACETS emitted by sync_data.py). Multi-select
   // within the dimension ORs facets; the vocabulary tag ANDs on top of it.
   const FACETS = (typeof window.FACETS !== 'undefined' && window.FACETS.structure)
     ? window.FACETS.structure : null;
@@ -1316,7 +1316,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
   }
 
   // ---------- User overlay: favorites + private notes ----------
-  // Best-effort persistence: read src/meta.json when reachable (hosted or a
+  // Best-effort persistence: read meta.json when reachable (hosted or a
   // permissive file:// origin); otherwise fall back to localStorage silently.
   // Never throws — the gallery is fully functional without the overlay.
   const META_KEY = 'picasso-meta-v1';

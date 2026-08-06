@@ -7,15 +7,15 @@ cd "$(dirname "$0")/.."
 rm -rf dist
 mkdir -p dist/vendor dist/fonts dist/screenshots
 
-cp src/index.html dist/
-cp src/data.js dist/
-cp src/vendor/*.js dist/vendor/ 2>/dev/null || true
-cp src/vendor/LICENSE dist/vendor/ 2>/dev/null || true
-cp src/fonts/*.woff2 dist/fonts/
-cp src/screenshots/*.png dist/screenshots/ 2>/dev/null || true
-cp src/screenshots/*.jpg dist/screenshots/ 2>/dev/null || true
-cp src/screenshots/*.jpeg dist/screenshots/ 2>/dev/null || true
-cp src/screenshots/*.webp dist/screenshots/ 2>/dev/null || true
+cp src/picasso/index.html dist/
+cp src/picasso/data.js dist/
+cp src/picasso/vendor/*.js dist/vendor/ 2>/dev/null || true
+cp src/picasso/vendor/LICENSE dist/vendor/ 2>/dev/null || true
+cp src/picasso/fonts/*.woff2 dist/fonts/
+cp src/picasso/screenshots/*.png dist/screenshots/ 2>/dev/null || true
+cp src/picasso/screenshots/*.jpg dist/screenshots/ 2>/dev/null || true
+cp src/picasso/screenshots/*.jpeg dist/screenshots/ 2>/dev/null || true
+cp src/picasso/screenshots/*.webp dist/screenshots/ 2>/dev/null || true
 
 # deploy note (keeps privacy guidance with the bundle)
 if [ -f scripts/README-DEPLOY.md ]; then

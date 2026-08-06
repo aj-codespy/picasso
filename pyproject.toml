@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "picasso-design-gallery"
+version = "1.8.0"
+description = "A searchable design-inspiration library, generated from your screenshots by a vision model"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+keywords = ["design", "gallery", "inspiration", "vision", "cli"]
+classifiers = [
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Graphics",
+]
+dependencies = []
+
+[project.optional-dependencies]
+google = ["google-genai"]
+dev = ["build"]
+
+[project.urls]
+Homepage = "https://github.com/aj-codespy/picasso"
+Repository = "https://github.com/aj-codespy/picasso"
+
+[project.scripts]
+picasso = "picasso.designlib:main"
+
+[tool.setuptools]
+packages = ["picasso"]
+package-dir = { "picasso" = "src/picasso" }
+
+# Gallery assets ship with the package so `pip install` gives a fully working
+# offline gallery. USER SCREENSHOTS ARE NEVER SHIPPED (privacy wall): only the
+# README placeholder travels; the real images stay on your machine.
+[tool.setuptools.package-data]
+picasso = [
+    "index.html",
+    "data.js",
+    "sync_data.py",
+    "data/seed.json",
+    "data/library.json",
+    "fonts/*.woff2",
+    "vendor/*.js",
+    "vendor/LICENSE",
+    "screenshots/README.md",
+]
+
+[tool.setuptools.exclude-package-data]
+picasso = [
+    "screenshots/*.png",
+    "screenshots/*.jpg",
+    "screenshots/*.jpeg",
+    "screenshots/*.webp",
+    "meta.json",
+    "data/*.backup.json",
+    "data/*.corrupt-*",
+]
