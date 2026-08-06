@@ -118,6 +118,8 @@
     gap: 24px;
     flex-wrap: wrap;
   }
+  /* hero load animation — CSS fallback; GSAP SplitText takes over when motion
+     is on (body.motion), so suppress the CSS rise to avoid double animation */
   .exhibition-title {
     font-family: var(--serif);
     font-weight: 400;
@@ -127,6 +129,10 @@
     color: var(--ink);
     animation: rise .8s var(--ease) both;
   }
+  body.motion .exhibition-title,
+  body.motion .hero-count,
+  body.motion .tagline,
+  body.motion .hero-stats { animation: none; }
   .exhibition-title em {
     font-style: italic;
     color: var(--accent-deep);
@@ -428,6 +434,43 @@
   @keyframes rise {
     from { opacity: 0; transform: translateY(16px); }
     to   { opacity: 1; transform: none; }
+  }
+
+  /* film grain — faint analog texture, static (no motion) so it is safe for
+     reduced-motion users; sits above the wall, below everything interactive */
+  .grain {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
+  }
+
+  /* gallery baseboard — a grounding skirting rail under the marquee */
+  .baseboard {
+    position: relative;
+    max-width: 1560px;
+    margin: 0 auto;
+    padding: 0 40px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .baseboard::after {
+    content: "";
+    flex: 0 0 100%;
+    height: 1px;
+    background: var(--line-strong);
+    box-shadow: 0 3px 0 rgba(0, 0, 0, 0.02);
+  }
+  .baseboard-plug {
+    position: absolute;
+    width: 6px; height: 6px;
+    border-radius: 999px;
+    background: var(--accent);
+    margin-top: -3px;
+    margin-right: 14px;
   }
 
   /* hover spotlight — transform-only, zero layout shift (CLS-safe).
@@ -1017,6 +1060,8 @@
 <body class="has-js">
 <!-- scroll progress rule — fills with page scroll; hidden for reduced motion -->
 <div id="scrollProgress" aria-hidden="true"></div>
+<!-- film grain — subtle analog texture over the whole gallery (static, no motion) -->
+<div class="grain" aria-hidden="true"></div>
 <!--
 THESIS: An exhibition on light — the collection hangs on warm gallery-white walls; every work carries a catalog number and an ink placard, and the vocabulary scrolls past like the gallery's own announcement board. Refuses the template landing-page default.
 OWN-WORLD: Warm gallery-white walls (#FAF7F2) with white cards (#FFFFFF), hairline rules (#E5DFD2), ink placards (#131110) overlapping frame bottoms, Instrument Serif catalog voice, mono metadata, brand orange #F97316 as the exhibition marker (deep orange #C2500A for text on light). Hero carries a slow marquee of the design vocabulary.
@@ -1041,6 +1086,11 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     <div class="marquee-track" id="marqueeTrack"></div>
   </div>
 </header>
+
+<!-- gallery baseboard — the exhibition's skirting rail, a quiet grounding line -->
+<div class="baseboard" aria-hidden="true">
+  <span class="baseboard-plug"></span>
+</div>
 
 <div class="catalog-bar">
   <div class="search-wrap">
@@ -1398,6 +1448,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     Array.from(counts.entries())
       .sort((a, b) => b[1] - a[1])
       .forEach(([t, n]) => mk(t, t, n));
+    cascadeChips();
   }
 
   function facetCounts() {
@@ -1430,6 +1481,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
       b.innerHTML = `${v.facet}<span class="idx-count">${counts.get(v.facet) || 0}</span>`;
       facetbar.appendChild(b);
     });
+    cascadeChips();
   }
 
   function emptyRoomHTML() {
@@ -1540,6 +1592,79 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
       onUpdate: self => gsap.set('#scrollProgress', { scaleX: self.progress })
     });
     _scrollers.push(prog);
+  }
+
+  // Ambient finish (B8): hero title SplitText entrance, vocabulary chip
+  // cascade, and a pinned How-it-works reveal. All gated on HAS_GSAP; the
+  // CSS fallbacks (rise animation, static sections) keep the gallery whole.
+  function setupAmbient() {
+    if (!HAS_GSAP) return;
+    // 1) Hero entrance — SplitText words rise in staggered (title + tagline).
+    // Deferred until fonts load so SplitText measures real metrics (avoids
+    // "called before fonts loaded" wrap errors).
+    const heroEnter = () => {
+      const titleEl = document.querySelector('.exhibition-title');
+      const taglineEl = document.querySelector('.tagline');
+      const statsEl = document.querySelector('.hero-stats');
+      const words = [];
+      if (titleEl && window.SplitText) {
+        const t = new window.SplitText(titleEl, { type: 'words', wordsClass: 'hero-word' });
+        words.push(...t.words);
+      }
+      if (taglineEl && window.SplitText) {
+        const tg = new window.SplitText(taglineEl, { type: 'words', wordsClass: 'hero-word' });
+        words.push(...tg.words);
+      }
+      if (words.length) {
+        gsap.fromTo(words, { y: 18, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.9, ease: 'power3.out', stagger: 0.02 });
+      } else {
+        gsap.fromTo([titleEl, taglineEl], { y: 18, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out', stagger: 0.1 });
+      }
+      if (statsEl) {
+        gsap.fromTo(statsEl, { y: 14, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out', delay: 0.35 });
+      }
+    };
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(heroEnter);
+    } else {
+      heroEnter();
+    }
+    // 2) How-it-works — pinned while the three steps cascade in.
+    const how = document.querySelector('.how');
+    if (how && window.ScrollTrigger) {
+      const steps = how.querySelectorAll('.how-step');
+      gsap.set(steps, { y: 26, opacity: 0 });
+      ScrollTrigger.create({
+        trigger: how,
+        start: 'top 75%',
+        end: '+=340',
+        pin: true,
+        pinSpacing: true,
+        anticipatePin: 1,
+        onEnter: () => gsap.to(steps, {
+          y: 0, opacity: 1, duration: 0.7, ease: 'power3.out', stagger: 0.16,
+          overwrite: true,
+        }),
+      });
+    }
+  }
+
+  // Vocabulary + facet chips cascade in whenever the index re-renders.
+  function cascadeChips() {
+    if (!HAS_GSAP) return;
+    const chips = tagbar.querySelectorAll('.index-item');
+    if (chips.length) {
+      gsap.fromTo(chips, { y: 10, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.45, ease: 'power2.out', stagger: 0.012 });
+    }
+    const fchips = facetbar.querySelectorAll('.index-item');
+    if (fchips.length) {
+      gsap.fromTo(fchips, { y: 10, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.45, ease: 'power2.out', stagger: 0.012, delay: 0.08 });
+    }
   }
 
   // Cursor-tracked image zoom — transform-only (GSAP quickTo), wall view only.
@@ -1855,6 +1980,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     renderTags();
     renderFacets();
     render();
+    setupAmbient(); // hero SplitText + pinned How-it-works (GSAP only)
     applyHash(); // honor pasted /navigated deep link on cold load
   });
 </script>
