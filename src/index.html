@@ -352,6 +352,40 @@
   }
   .index-item.active .idx-count { color: var(--ink); }
 
+  /* Structure facet filters — a second, slimmer index row. Same chips, but
+     the count marks how many works share that structural facet. Multi-select:
+     selecting several facets ORs them within the structure dimension. */
+  .facet-group { margin-top: 26px; }
+  .facet-label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin-bottom: 10px;
+  }
+  .index.index-facets { gap: 8px; }
+  .index-facets .index-item {
+    border-radius: 6px;
+    padding: 7px 13px;
+    border-color: var(--line);
+    background: var(--surface);
+    color: var(--ink-soft);
+  }
+  .index-facets .index-item .idx-count { color: var(--faint); }
+  .index-facets .index-item:hover {
+    border-color: var(--accent-deep);
+    color: var(--accent-deep);
+  }
+  .index-facets .index-item.active {
+    background: var(--surface-soft);
+    border-color: var(--accent-deep);
+    color: var(--accent-deep);
+    box-shadow: none;
+  }
+  .index-facets .index-item.active .idx-count { color: var(--accent-deep); }
+
   /* ---------- Walls (the collection) ---------- */
   main { max-width: 1560px; margin: 0 auto; padding: 64px 40px 24px; }
   /* wall: flex rows so a hovered work can physically take 2/3 of its row */
@@ -1029,6 +1063,10 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     <span class="index-sub">The taxonomy of the collection</span>
   </div>
   <nav class="index" id="tagbar"></nav>
+  <div class="facet-group" id="facetGroup" hidden>
+    <span class="facet-label" id="facetLabel"></span>
+    <nav class="index index-facets" id="facetbar"></nav>
+  </div>
 </section>
 
 <main>
@@ -1115,6 +1153,32 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
   let view = 'grid';
   let filteredList = [];   // last render's filtered works (modal prev/next walk)
   let searchTimer = null;  // input debounce
+
+  // Structure facets (window.FACETS emitted by src/sync_data.py). Multi-select
+  // within the dimension ORs facets; the vocabulary tag ANDs on top of it.
+  const FACETS = (typeof window.FACETS !== 'undefined' && window.FACETS.structure)
+    ? window.FACETS.structure : null;
+  const facetGroup = document.getElementById('facetGroup');
+  const facetLabel = document.getElementById('facetLabel');
+  const facetbar = document.getElementById('facetbar');
+  const activeFacets = new Set();
+  // Reverse index: lowercase component token -> structure facet name.
+  const componentToFacet = (() => {
+    const map = {};
+    if (FACETS) {
+      FACETS.values.forEach(v => v.components.forEach(c => { map[String(c).toLowerCase()] = v.facet; }));
+    }
+    return map;
+  })();
+
+  function facetNamesFor(d) {
+    const names = new Set();
+    (d.components || []).forEach(c => {
+      const f = componentToFacet[String(c).toLowerCase()];
+      if (f) names.add(f);
+    });
+    return names;
+  }
 
   function escapeHtml(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
@@ -1272,6 +1336,14 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
   }
   function matches(d) {
     if (activeTag !== 'all' && !(d.tags || []).includes(activeTag)) return false;
+    // Structure facets: OR within the dimension (any selected facet matches);
+    // AND with the vocabulary tag above and the search below.
+    if (activeFacets.size) {
+      const mine = facetNamesFor(d);
+      let hit = false;
+      activeFacets.forEach(f => { if (mine.has(f)) hit = true; });
+      if (!hit) return false;
+    }
     if (searchQuery) {
       const pal = Array.isArray(d.palette)
         ? d.palette.map(s => `${s.name || ''} ${s.hex || ''}`).join(' ')
@@ -1326,6 +1398,38 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     Array.from(counts.entries())
       .sort((a, b) => b[1] - a[1])
       .forEach(([t, n]) => mk(t, t, n));
+  }
+
+  function facetCounts() {
+    const counts = new Map();
+    if (!FACETS) return counts;
+    FACETS.values.forEach(v => counts.set(v.facet, 0));
+    DESIGNS.forEach(d => {
+      const mine = facetNamesFor(d);
+      mine.forEach(f => { if (counts.has(f)) counts.set(f, counts.get(f) + 1); });
+    });
+    return counts;
+  }
+
+  function renderFacets() {
+    if (!FACETS || !FACETS.values.length) {
+      facetGroup.hidden = true;
+      return;
+    }
+    facetGroup.hidden = false;
+    facetLabel.textContent = `Browse by ${FACETS.label.toLowerCase()}`;
+    const counts = facetCounts();
+    facetbar.innerHTML = '';
+    FACETS.values.forEach(v => {
+      const on = activeFacets.has(v.facet);
+      const b = document.createElement('button');
+      b.className = 'index-item' + (on ? ' active' : '');
+      b.dataset.facet = v.facet;
+      b.setAttribute('aria-pressed', String(on));
+      b.title = `Show works with ${v.facet.toLowerCase()} components`;
+      b.innerHTML = `${v.facet}<span class="idx-count">${counts.get(v.facet) || 0}</span>`;
+      facetbar.appendChild(b);
+    });
   }
 
   function emptyRoomHTML() {
@@ -1629,6 +1733,13 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     activeTag = b.dataset.tag;
     renderTags(); render();
   });
+  facetbar.addEventListener('click', e => {
+    const b = e.target.closest('.index-item');
+    if (!b) return;
+    const f = b.dataset.facet;
+    if (activeFacets.has(f)) activeFacets.delete(f); else activeFacets.add(f);
+    renderFacets(); render();
+  });
   grid.addEventListener('click', e => {
     const chip = e.target.closest('.cmd-chip');
     if (!chip) return;
@@ -1704,6 +1815,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     renderStats();
     renderMarquee();
     renderTags();
+    renderFacets();
     render();
   });
 </script>

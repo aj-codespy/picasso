@@ -14,8 +14,10 @@ from pathlib import Path
 from unittest import mock
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
 
 import designlib as dl
+import sync_data
 
 
 class TestProviderRegistry(unittest.TestCase):
@@ -566,6 +568,63 @@ class TestSeedCommand(unittest.TestCase):
             self.assertEqual(ctx.exception.code, 1)
             joined = " ".join(str(c) for c in pr.call_args_list)
             self.assertIn("sample", joined.lower())
+
+
+class TestFacets(unittest.TestCase):
+    """B6: the facet taxonomy derived by sync_data.build_facets.
+
+    Structure facets come from each design's REAL `components` list — no
+    fabricated tone/mood dimensions (palette is prose in this corpus, so we
+    never invent hex-based facets). The map must be total: every component
+    token that appears in the corpus lands in exactly one facet.
+    """
+
+    def _load_seed_designs(self):
+        seed = json.loads(Path(dl.SEED_FILE).read_text(encoding="utf-8"))
+        return seed["designs"]
+
+    def test_every_seed_component_maps_to_exactly_one_facet(self):
+        designs = self._load_seed_designs()
+        seen = set()
+        for d in designs:
+            for c in d["analysis"].get("components", []):
+                seen.add(str(c).strip().lower())
+        mapped = set()
+        for group in sync_data.COMPONENT_FACETS:
+            for c in group["components"]:
+                self.assertNotIn(c, mapped, f"component {c!r} mapped twice")
+                mapped.add(c)
+        missing = seen - mapped
+        self.assertEqual(
+            missing, set(),
+            f"components with no facet: {sorted(missing)}",
+        )
+
+    def test_facets_emitted_only_for_present_components(self):
+        designs = [
+            {"components": d["analysis"].get("components", [])}
+            for d in self._load_seed_designs()
+        ]
+        facets = sync_data.build_facets(designs)
+        struct = facets["structure"]
+        self.assertEqual(struct["label"], "Structure")
+        # Navigation + Content must exist in the real corpus (navbar/hero appear).
+        names = {v["facet"] for v in struct["values"]}
+        self.assertIn("Navigation", names)
+        self.assertIn("Content", names)
+        # Every emitted facet has at least one component.
+        for v in struct["values"]:
+            self.assertTrue(v["components"], f"empty facet {v['facet']!r}")
+
+    def test_empty_corpus_yields_no_phantom_facets(self):
+        facets = sync_data.build_facets([])
+        self.assertEqual(facets["structure"]["values"], [])
+
+    def test_facets_are_case_normalized(self):
+        facets = sync_data.build_facets([{"components": ["NAVBAR", "Hero"]}])
+        nav = next(v for v in facets["structure"]["values"] if v["facet"] == "Navigation")
+        self.assertIn("navbar", nav["components"])
+        self.assertNotIn("NAVBAR", nav["components"])
 
 
 class TestInstalledLauncher(unittest.TestCase):

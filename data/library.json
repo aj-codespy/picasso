@@ -1,1 +1,638 @@
-{"designs": []}
+{
+  "designs": [
+    {
+      "path": "screenshots/design_01.png",
+      "analysis": {
+        "description": "A professional, corporate-oriented document management interface with a focus on clarity and organization, designed to streamline workflow and document tracking.",
+        "tags": [
+          "corporate",
+          "dashboard",
+          "tech",
+          "clean",
+          "saas",
+          "flat-design",
+          "sidebar",
+          "card-grid"
+        ],
+        "components": [
+          "sidebar",
+          "search-bar",
+          "card-grid",
+          "avatar",
+          "CTA-button",
+          "dashboard-chart",
+          "table",
+          "tooltip"
+        ],
+        "palette": "Light neutral background with dark charcoal text and subtle gray accents for interactive elements",
+        "ideas": [
+          "A project management tool for creative teams",
+          "An internal document repository for a law firm",
+          "A content management system for a media company"
+        ],
+        "title": "A professional, corporate-oriented document management interface\u2026"
+      }
+    },
+    {
+      "path": "screenshots/design_02.png",
+      "analysis": {
+        "description": "A sleek, modern landing page for an AI sales agent with a focus on premium aesthetics and clear messaging.",
+        "tags": [
+          "ai-saas",
+          "clean",
+          "bold-typography",
+          "tech",
+          "landing-page",
+          "premium",
+          "futuristic",
+          "spaced-out"
+        ],
+        "components": [
+          "hero",
+          "navbar",
+          "CTA-button",
+          "illustration-heavy",
+          "form"
+        ],
+        "palette": "warm cream background with deep charcoal text and gold accent highlights",
+        "ideas": [
+          "AI-powered customer service interface",
+          "Premium tech product landing page",
+          "Futuristic dashboard design"
+        ],
+        "title": "A sleek, modern landing page for\u2026"
+      }
+    },
+    {
+      "path": "screenshots/design_03.png",
+      "analysis": {
+        "description": "A clean, modern landing page for a financial management SaaS product, emphasizing control and simplicity in fleet spending.",
+        "tags": [
+          "clean",
+          "saas",
+          "tech",
+          "mobile-first",
+          "landing-page",
+          "bold-typography",
+          "corporate",
+          "premium"
+        ],
+        "components": [
+          "hero",
+          "navbar",
+          "CTA-button",
+          "mobile-device-mockup",
+          "form"
+        ],
+        "palette": "Light background with dark text and accent colors, featuring a gradient from pink to blue",
+        "ideas": [
+          "A financial dashboard for small businesses",
+          "A mobile app for expense tracking",
+          "A corporate training platform for fleet management"
+        ],
+        "title": "A clean, modern landing page for\u2026"
+      }
+    },
+    {
+      "path": "screenshots/design_04.png",
+      "analysis": {
+        "description": "A clean and modern landing page design for an AI-powered revenue intelligence platform, emphasizing clarity and ease of use.",
+        "tags": [
+          "clean",
+          "saas",
+          "ai-saas",
+          "landing-page",
+          "tech",
+          "glassmorphism",
+          "bold-typography",
+          "gradient"
+        ],
+        "components": [
+          "hero",
+          "navbar",
+          "form",
+          "CTA-button",
+          "stats",
+          "logo"
+        ],
+        "palette": "White background with blue and black accents, featuring a gradient blue pattern on the right side.",
+        "ideas": [
+          "A dashboard for financial analytics tools",
+          "An interface for an AI-driven marketing platform",
+          "A prototype for a cloud-based revenue management system"
+        ],
+        "title": "A clean and modern landing page\u2026"
+      }
+    },
+    {
+      "path": "screenshots/design_05.png",
+      "analysis": {
+        "description": "A clean, tech-oriented landing page for an AI scheduling service, emphasizing ease of use and automation.",
+        "tags": [
+          "clean",
+          "saas",
+          "ai-saas",
+          "tech",
+          "dashboard",
+          "futuristic",
+          "flat-design",
+          "bold-typography"
+        ],
+        "components": [
+          "hero",
+          "navbar",
+          "sidebar",
+          "CTA-button",
+          "dashboard-chart",
+          "avatar",
+          "modal",
+          "search-bar"
+        ],
+        "palette": "White background with black text, blue accents, and a touch of gold for trust indicators.",
+        "ideas": [
+          "An AI-powered task manager",
+          "A smart meeting room booking system",
+          "An automated personal assistant app"
+        ],
+        "title": "A clean, tech-oriented landing page for\u2026"
+      }
+    },
+    {
+      "path": "screenshots/design_06.png",
+      "analysis": {
+        "description": "A clean and modern SaaS dashboard interface designed to streamline task and meeting management, emphasizing user efficiency and integration with existing tools.",
+        "tags": [
+          "saas",
+          "dashboard",
+          "clean",
+          "tech",
+          "flat-design",
+          "corporate",
+          "gradient",
+          "bento"
+        ],
+        "components": [
+          "hero",
+          "navbar",
+          "sidebar",
+          "card-grid",
+          "stats",
+          "CTA-button",
+          "dashboard-chart",
+          "table",
+          "avatar",
+          "search-bar",
+          "logo"
+        ],
+        "palette": "warm cream background with deep charcoal text and burnt-orange accent",
+        "ideas": [
+          "A project management tool for remote teams",
+          "An analytics platform for business insights",
+          "A scheduling app for professionals"
+        ],
+        "title": "A clean and modern SaaS dashboard\u2026"
+      }
+    },
+    {
+      "path": "screenshots/design_07.png",
+      "analysis": {
+        "description": "A clean, corporate SaaS landing page design focused on clarity and conversion, emphasizing trust through testimonials and flexible pricing plans.",
+        "tags": [
+          "saas",
+          "clean",
+          "landing-page",
+          "corporate",
+          "tech",
+          "flat-design",
+          "bold-typography",
+          "spaced-out"
+        ],
+        "components": [
+          "hero",
+          "testimonial",
+          "pricing-table",
+          "form",
+          "CTA-button",
+          "footer",
+          "logo"
+        ],
+        "palette": "warm cream background with deep charcoal text and burnt-orange accent",
+        "ideas": [
+          "A project management tool interface",
+          "An online course platform homepage",
+          "A productivity app's onboarding screen"
+        ],
+        "title": "A clean, corporate SaaS landing page\u2026"
+      }
+    },
+    {
+      "path": "screenshots/design_08.png",
+      "analysis": {
+        "description": "A clean, tech-oriented dashboard interface designed for AI-powered business management, emphasizing data visualization and user engagement.",
+        "tags": [
+          "saas",
+          "ai-saas",
+          "dashboard",
+          "tech",
+          "clean",
+          "flat-design",
+          "bold-typography",
+          "gradient"
+        ],
+        "components": [
+          "hero",
+          "navbar",
+          "dashboard-chart",
+          "stats",
+          "CTA-button",
+          "avatar",
+          "search-bar",
+          "sidebar",
+          "card-grid",
+          "modal"
+        ],
+        "palette": "Light blue sky background with white clouds, dark blue and black accents, and vibrant orange and blue charts",
+        "ideas": [
+          "AI analytics platform for small businesses",
+          "Customer engagement dashboard for marketing agencies",
+          "Real-time data visualization tool for tech startups"
+        ],
+        "title": "A clean, tech-oriented dashboard interface designed\u2026"
+      }
+    },
+    {
+      "path": "screenshots/design_09.png",
+      "analysis": {
+        "description": "A clean, corporate SaaS dashboard with a focus on sales analytics and performance tracking, featuring a sidebar navigation and card-based layout.",
+        "tags": [
+          "saas",
+          "dashboard",
+          "clean",
+          "tech",
+          "flat-design",
+          "corporate",
+          "bento",
+          "stats"
+        ],
+        "components": [
+          "sidebar",
+          "dashboard-chart",
+          "card-grid",
+          "stats",
+          "avatar",
+          "CTA-button",
+          "table",
+          "search-bar"
+        ],
+        "palette": "Light gray background with white cards, green accents, and dark charcoal text",
+        "ideas": [
+          "Sales performance tracking for a SaaS product",
+          "Corporate analytics dashboard for internal reporting",
+          "E-commerce revenue overview for a tech startup"
+        ],
+        "title": "A clean, corporate SaaS dashboard with\u2026"
+      }
+    },
+    {
+      "path": "screenshots/design_10.png",
+      "analysis": {
+        "description": "A clean, modern banking interface emphasizing security and global accessibility, with a focus on real-time financial insights and seamless transactions.",
+        "tags": [
+          "clean",
+          "tech",
+          "ai-saas",
+          "landing-page",
+          "premium",
+          "spaced-out",
+          "futuristic",
+          "material"
+        ],
+        "components": [
+          "hero",
+          "card-grid",
+          "CTA-button",
+          "avatar",
+          "form",
+          "dashboard-chart"
+        ],
+        "palette": "Light neutral background with dark charcoal text and subtle gold accents for highlights",
+        "ideas": [
+          "A global payment platform for freelancers",
+          "An AI-powered financial advisor app",
+          "A luxury banking service for high-net-worth individuals"
+        ],
+        "title": "A clean, modern banking interface emphasizing\u2026"
+      }
+    },
+    {
+      "path": "screenshots/design_11.png",
+      "analysis": {
+        "description": "A sleek, modern landing page with a focus on bold typography and a gradient background, designed to convey a sense of innovation and professionalism.",
+        "tags": [
+          "minimalist",
+          "premium",
+          "clean",
+          "dark-mode",
+          "bold-typography",
+          "gradient",
+          "tech",
+          "landing-page"
+        ],
+        "components": [
+          "hero",
+          "navbar",
+          "CTA-button",
+          "logo"
+        ],
+        "palette": "Gradient from warm coral to deep purple with white text and black accents",
+        "ideas": [
+          "Tech startup homepage",
+          "Creative agency portfolio",
+          "Digital product launch site"
+        ],
+        "title": "A sleek, modern landing page with\u2026"
+      }
+    },
+    {
+      "path": "screenshots/design_12.png",
+      "analysis": {
+        "description": "Futuristic and tech-oriented design with a focus on space exploration, featuring a clean layout and bold typography to convey innovation and ambition.",
+        "tags": [
+          "futuristic",
+          "tech",
+          "landing-page",
+          "bold-typography",
+          "clean",
+          "premium",
+          "corporate",
+          "illustration-heavy"
+        ],
+        "components": [
+          "hero",
+          "navbar",
+          "CTA-button",
+          "logo",
+          "product-gallery"
+        ],
+        "palette": "Warm orange and brown tones with white text and dark accents, evoking a Martian landscape and high-tech feel.",
+        "ideas": [
+          "Space tourism website",
+          "Sci-fi themed app interface",
+          "Innovative tech product landing page"
+        ],
+        "title": "Futuristic and tech-oriented design with a\u2026"
+      }
+    },
+    {
+      "path": "screenshots/design_13.png",
+      "analysis": {
+        "description": "A serene and inviting landing page for a nature-focused retreat service, emphasizing tranquility and simplicity.",
+        "tags": [
+          "minimalist",
+          "clean",
+          "landing-page",
+          "ai-saas",
+          "bold-typography",
+          "earthy",
+          "warm",
+          "flat-design"
+        ],
+        "components": [
+          "hero",
+          "navbar",
+          "CTA-button",
+          "illustration-heavy",
+          "form"
+        ],
+        "palette": "warm cream background with deep charcoal text and burnt-orange accent",
+        "ideas": [
+          "A wellness app interface",
+          "An eco-friendly product website",
+          "A meditation and mindfulness platform"
+        ],
+        "title": "A serene and inviting landing page\u2026"
+      }
+    },
+    {
+      "path": "screenshots/design_14.png",
+      "analysis": {
+        "description": "A clean, tech-oriented UI for an AI SaaS platform, emphasizing automation and enterprise solutions with a focus on clarity and user engagement.",
+        "tags": [
+          "ai-saas",
+          "clean",
+          "tech",
+          "dashboard",
+          "futuristic",
+          "flat-design",
+          "spaced-out",
+          "airy"
+        ],
+        "components": [
+          "hero",
+          "navbar",
+          "CTA-button",
+          "chat-widget",
+          "dashboard-chart",
+          "table",
+          "avatar",
+          "modal"
+        ],
+        "palette": "Light gray background with black and dark gray text, accented by vibrant blue and green elements.",
+        "ideas": [
+          "An AI-driven project management tool",
+          "A customer service automation dashboard",
+          "An enterprise workflow optimization platform"
+        ],
+        "title": "A clean, tech-oriented UI for an\u2026"
+      }
+    },
+    {
+      "path": "screenshots/design_15.png",
+      "analysis": {
+        "description": "A clean, tech-focused landing page for an AI workflow automation platform, emphasizing efficiency and scalability.",
+        "tags": [
+          "saas",
+          "ai-saas",
+          "dashboard",
+          "tech",
+          "clean",
+          "bold-typography",
+          "flat-design",
+          "spaced-out"
+        ],
+        "components": [
+          "hero",
+          "navbar",
+          "form",
+          "CTA-button",
+          "dashboard-chart",
+          "table",
+          "avatar",
+          "sidebar",
+          "card-grid",
+          "stats"
+        ],
+        "palette": "Light neutral background with dark charcoal text, accented by vibrant orange and green elements.",
+        "ideas": [
+          "A project management tool for remote teams",
+          "An AI-powered marketing automation suite",
+          "A developer platform for integrating machine learning models"
+        ],
+        "title": "A clean, tech-focused landing page for\u2026"
+      }
+    },
+    {
+      "path": "screenshots/design_16.png",
+      "analysis": {
+        "description": "A clean, modern SaaS dashboard interface with a focus on data visualization and user engagement through AI-driven features.",
+        "tags": [
+          "saas",
+          "tech",
+          "ai-saas",
+          "dashboard",
+          "clean",
+          "futuristic",
+          "flat-design",
+          "spaced-out"
+        ],
+        "components": [
+          "hero",
+          "navbar",
+          "sidebar",
+          "dashboard-chart",
+          "CTA-button",
+          "chat-widget",
+          "logo"
+        ],
+        "palette": "Soft green gradients with white backgrounds and dark text, accented with bright yellow for CTAs",
+        "ideas": [
+          "AI-powered productivity tool interface",
+          "Eco-friendly tech startup landing page",
+          "Smart analytics dashboard for business insights"
+        ],
+        "title": "A clean, modern SaaS dashboard interface\u2026"
+      }
+    },
+    {
+      "path": "screenshots/design_17.png",
+      "analysis": {
+        "description": "A minimalist landing page design focused on recruiting builders, emphasizing clarity and direct action with a bold typographic approach.",
+        "tags": [
+          "minimalist",
+          "bold-typography",
+          "monochrome",
+          "tech",
+          "landing-page",
+          "clean",
+          "corporate",
+          "premium"
+        ],
+        "components": [
+          "hero",
+          "navbar",
+          "CTA-button",
+          "form"
+        ],
+        "palette": "White background with black text and a dark charcoal button for contrast",
+        "ideas": [
+          "A platform for freelance tech professionals",
+          "An educational course on building real-world projects",
+          "A community for verified project builders"
+        ],
+        "title": "A minimalist landing page design focused\u2026"
+      }
+    },
+    {
+      "path": "screenshots/design_18.png",
+      "analysis": {
+        "description": "A clean, corporate landing page design focused on recruiting tech talent with a minimalist aesthetic and bold typography to emphasize results.",
+        "tags": [
+          "minimalist",
+          "clean",
+          "bold-typography",
+          "tech",
+          "landing-page",
+          "ai-saas",
+          "corporate",
+          "spaced-out"
+        ],
+        "components": [
+          "hero",
+          "navbar",
+          "card-grid",
+          "CTA-button",
+          "avatar",
+          "badge"
+        ],
+        "palette": "Light gray background with black and orange text accents, featuring a blue highlight for branding elements",
+        "ideas": [
+          "Tech talent recruitment platform",
+          "SaaS product marketing page",
+          "Corporate portfolio website"
+        ],
+        "title": "A clean, corporate landing page design\u2026"
+      }
+    },
+    {
+      "path": "screenshots/design_19.png",
+      "analysis": {
+        "description": "A clean, corporate design focused on connecting builders with opportunities, emphasizing verified projects and community impact.",
+        "tags": [
+          "clean",
+          "corporate",
+          "tech",
+          "landing-page",
+          "bold-typography",
+          "spaced-out",
+          "airy",
+          "gold-accent"
+        ],
+        "components": [
+          "hero",
+          "navbar",
+          "stats",
+          "CTA-button",
+          "illustration"
+        ],
+        "palette": "White background with black text and gold accents",
+        "ideas": [
+          "A platform for freelance developers to showcase portfolios",
+          "A community hub for tech event organizers",
+          "An educational resource for aspiring coders"
+        ],
+        "title": "A clean, corporate design focused on\u2026"
+      }
+    },
+    {
+      "path": "screenshots/design_20.png",
+      "analysis": {
+        "description": "A tech-focused landing page with a playful illustration and bold messaging, emphasizing AI control and automation.",
+        "tags": [
+          "ai-saas",
+          "bold-typography",
+          "dark-mode",
+          "tech",
+          "futuristic",
+          "clean",
+          "landing-page",
+          "playful"
+        ],
+        "components": [
+          "hero",
+          "navbar",
+          "CTA-button",
+          "stats",
+          "logo",
+          "illustration-heavy"
+        ],
+        "palette": "Deep navy background with white text, gold-accent logo, and warm earthy tones in the illustration",
+        "ideas": [
+          "AI project management dashboard",
+          "Automation workflow builder",
+          "Tech startup pitch deck template"
+        ],
+        "title": "A tech-focused landing page with a\u2026"
+      }
+    }
+  ]
+}

@@ -8,6 +8,37 @@ OUT_PATH = os.path.join(ROOT, "src", "data.js")
 
 HEX_RE = re.compile(r"#[0-9a-fA-F]{6}\b")
 
+# Facet taxonomy: deterministic structure facets derived from each design's
+# real `components` list. Every component token must land in exactly one
+# facet so the filter is total (no design silently unfilterable).
+COMPONENT_FACETS = [
+    {"facet": "Navigation", "components": ["navbar", "sidebar", "search-bar", "logo"]},
+    {"facet": "Content", "components": ["hero", "card-grid", "stats", "footer", "testimonial", "pricing-table", "illustration-heavy", "illustration", "product-gallery", "mobile-device-mockup"]},
+    {"facet": "Interaction", "components": ["cta-button", "form", "modal", "tooltip", "chat-widget", "badge"]},
+    {"facet": "Data", "components": ["dashboard-chart", "table"]},
+    {"facet": "Identity", "components": ["avatar"]},
+]
+
+
+def build_facets(designs):
+    """Derive the gallery's facet taxonomy from the normalized designs.
+
+    Returns {"structure": {"label": "Structure", "values": [...]}} where each
+    value is {"facet": name, "components": [...]} — only facets whose
+    components appear in at least one design are emitted, so an empty wall
+    yields an empty taxonomy rather than phantom filters.
+    """
+    seen = set()
+    for d in designs:
+        for c in d.get("components", []):
+            seen.add(str(c).strip().lower())
+    values = []
+    for group in COMPONENT_FACETS:
+        hits = [c for c in group["components"] if c in seen]
+        if hits:
+            values.append({"facet": group["facet"], "components": hits})
+    return {"structure": {"label": "Structure", "values": values}}
+
 
 def normalize_analysis(analysis):
     """Coerce an analysis record into the gallery shape (title + swatch list).
@@ -71,10 +102,14 @@ def main():
         }
         if entry["file"]:
             normalized.append(entry)
+    facets = build_facets(normalized)
     with open(OUT_PATH, "w", encoding="utf-8") as f:
         f.write("// Auto-generated from data/library.json — do not edit by hand.\n")
         f.write("window.DESIGNS = ")
         f.write(json.dumps(normalized, indent=2, ensure_ascii=False))
+        f.write(";\n")
+        f.write("window.FACETS = ")
+        f.write(json.dumps(facets, indent=2, ensure_ascii=False))
         f.write(";\n")
     print(f"OK: {len(normalized)} designs -> {OUT_PATH}")
 
