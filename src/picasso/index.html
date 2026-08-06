@@ -1234,11 +1234,26 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
       ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
-  // Underline-only highlight of the active query in card/modal text.
+  // Split the active query into whitespace-separated search tokens (AND-matched).
+  function searchTokens() {
+    return (searchQuery || '').trim().split(/\s+/).filter(Boolean);
+  }
+  // Regex-escape a token so it can be embedded in a RegExp safely.
+  function escapeRegex(s) {
+    return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+  // A single token matches a haystack if it appears as a substring, OR as a
+  // word-boundary prefix (so "dashb" still finds "dashboard").
+  function tokenHits(tok, hay) {
+    if (hay.includes(tok)) return true;
+    return new RegExp('(^|\\s)' + escapeRegex(tok)).test(hay);
+  }
+  // Underline-only highlight of the ACTIVE QUERY TOKENS in card/modal text.
   function highlight(text) {
     if (!searchQuery || text == null || text === '') return escapeHtml(text);
-    const q = searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const re = new RegExp(`(${q})`, 'ig');
+    const toks = searchTokens();
+    if (!toks.length) return escapeHtml(text);
+    const re = new RegExp('(' + toks.map(escapeRegex).join('|') + ')', 'ig');
     return String(text).split(re).map((part, i) =>
       i % 2 === 1 ? `<mark>${escapeHtml(part)}</mark>` : escapeHtml(part)).join('');
   }
@@ -1402,7 +1417,11 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
                    (d.components || []).join(' '), (d.tags || []).join(' '),
                    (d.ideas || []).join(' '), (d.usage || []).join(' '),
                    pal].join(' ').toLowerCase();
-      if (!hay.includes(searchQuery)) return false;
+      // Multi-term search: EVERY whitespace-separated token must match (AND).
+      // Each token matches as a substring OR a word-boundary prefix, so
+      // "dashboard analytics" now finds works mentioning both, and "dashb"
+      // still hits "dashboard" (single-string .includes() matched neither).
+      if (!searchTokens().every(tok => tokenHits(tok, hay))) return false;
     }
     return true;
   }
