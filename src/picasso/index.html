@@ -1759,8 +1759,10 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     else if (backdrop.classList.contains('open')) trapFocus(e);
   });
 
-  function openModal(d, triggerEl) {
-    lastTrigger = triggerEl || null;
+  function openModal(d, triggerEl, fromHistory) {
+    // Preserve the original grid trigger across prev/next, so closing the room
+    // always restores focus to the card the user first came from.
+    if (triggerEl) lastTrigger = triggerEl;
     const plate = plateNo(d.file);
     const wrap = document.getElementById('modalImgWrap');
     if (wrap.dataset.noArt || !document.getElementById('modalImg')) {
@@ -1828,13 +1830,18 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
 
     const pill = document.getElementById('modalClose');
     pill.focus();
-    writeDesignHash(plate);
+    if (!fromHistory) writeDesignHash(plate);
   }
-  function closeModal() {
+  // Close the room UI (no history write). Used on Back/forward so the
+  // placeholder is never re-pushed.
+  function teardownRoom() {
     backdrop.classList.remove('open');
     document.body.style.overflow = '';
     setPageInert(false);
     if (lastTrigger && lastTrigger.isConnected) lastTrigger.focus();
+  }
+  function closeModal() {
+    teardownRoom();
     writeFilterHash();
   }
   backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(); });
@@ -1896,30 +1903,41 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
 
   // ---------- Deep links ----------
   // #design-07 opens that work's room directly; #tag=..&facets=a,b&q=.. restores
-  // a filtered wall. Filter changes and modal opens rewrite the hash so any
-  // state is shareable; hashchange handles pasted URLs and back/forward.
+  // a filtered wall. Committed state changes PUSH history entries so the Back
+  // button walks prior filters/rooms instead of leaving the app; hashchange
+  // handles pasted URLs, back and forward.
   function writeFilterHash() {
     const parts = [];
     if (activeTag !== 'all') parts.push('tag=' + encodeURIComponent(activeTag));
     if (activeFacets.size) parts.push('facets=' + [...activeFacets].map(encodeURIComponent).join(','));
     if (searchQuery) parts.push('q=' + encodeURIComponent(searchQuery));
     const h = parts.length ? '#' + parts.join('&') : '';
-    try { history.replaceState(null, '', h || window.location.href.split('#')[0]); } catch (_) {}
+    try { history.pushState(null, '', h || window.location.href.split('#')[0]); } catch (_) {}
   }
   function writeDesignHash(plate) {
-    try { history.replaceState(null, '', '#design-' + plate); } catch (_) {}
+    try { history.pushState(null, '', '#design-' + plate); } catch (_) {}
   }
+  // Closing the room should restore the prior wall. If the room was opened via
+  // Back (a design entry is already in history), just resolve to the filter
+  // state; otherwise pushState the current filters so Back still behaves.
   function applyHash() {
     const h = (location.hash || '').replace(/^#/, '');
-    const isDesign = /^design-\d{2}$/.test(h);
-    if (backdrop.classList.contains('open') && !isDesign) closeModal();
+    const isDesign = /^design-\d+$/.test(h);
+    if (backdrop.classList.contains('open') && !isDesign) teardownRoom();
     if (isDesign) {
       const plate = h.slice('design-'.length);
       const d = DESIGNS.find(x => plateNo(x.file) === plate);
-      if (d) openModal(d, null);
+      if (d) openModal(d, null, true);
       return;
     }
-    if (!h) return; // bare hash → defaults
+    if (!h) { // bare hash → reset to the unfiltered wall (Back to defaults)
+      activeTag = 'all';
+      activeFacets.clear();
+      searchQuery = '';
+      if (searchInput.value !== '') searchInput.value = '';
+      renderTags(); renderFacets(); render();
+      return;
+    }
     const params = new URLSearchParams(h);
     activeTag = params.get('tag') || 'all';
     activeFacets.clear();
