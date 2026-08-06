@@ -1,8 +1,10 @@
 name: CI
 
 # Runs the unit suite and CLI smoke on all three platforms.
-# The suite is stdlib-only (providers are mocked in tests), so there is no
-# install step and no network access required.
+# The suite is stdlib-only (providers are mocked in tests), so the main job
+# needs no install step and no network access. A separate wheel-smoke job
+# builds the sdist/wheel and pip-installs it in a fresh venv to prove the
+# package (console script + assets) actually works from PyPI artifacts.
 
 on:
   push:
@@ -26,13 +28,13 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Compile check
-        run: python -m py_compile designlib.py src/sync_data.py
+        run: python -m py_compile src/picasso/designlib.py src/picasso/sync_data.py
 
       - name: Unit tests
         run: python -m unittest tests.test_designlib
 
       - name: CLI smoke (--version)
-        run: python designlib.py --version
+        run: PYTHONPATH=src python -m picasso --version
 
       - name: Launcher smoke (POSIX only)
         if: runner.os != 'Windows'
@@ -62,3 +64,37 @@ jobs:
           install.bat
           cd %RUNNER_TEMP%
           "%LOCALAPPDATA%\picasso\picasso.cmd" --version
+
+  wheel-smoke:
+    name: Wheel build + fresh-venv install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build frontend
+        run: python -m pip install --quiet build
+
+      - name: Build sdist + wheel
+        run: python -m build --outdir dist
+
+      - name: Fresh venv + pip install wheel
+        run: |
+          python -m venv /tmp/smoke
+          /tmp/smoke/bin/python -m pip install --quiet dist/*.whl
+
+      - name: Console script + import smoke
+        run: |
+          /tmp/smoke/bin/picasso --version
+          /tmp/smoke/bin/python -c "import picasso; print('import OK', picasso.__version__)"
+
+      - name: Wheel must not ship user screenshots
+        run: |
+          if python -c "import zipfile,sys; z=zipfile.ZipFile('dist/'+__import__('glob').glob('dist/*.whl')[0].split('/')[-1]); sys.exit(1 if any(n.endswith(('.png','.jpg','.jpeg','.webp')) for n in z.namelist()) else 0)"; then
+            echo "OK: no image files in wheel"
+          else
+            echo "FAIL: wheel contains image files (privacy wall breached)" && exit 1
+          fi
