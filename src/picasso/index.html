@@ -1667,10 +1667,15 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     }
   }
 
-  // Cursor-tracked image zoom — transform-only (GSAP quickTo), wall view only.
+  // Cursor-tracked image zoom — transform-only (GSAP), wall view only.
   // The inner image pans toward the cursor and breathes to ~1.12 while the
   // wrapper keeps its own hover scale. Falls back to the CSS hover zoom when
   // GSAP is absent or reduced-motion is on.
+  // One atomic tween per event: a single GSAP render owns the whole transform,
+  // so xPercent/yPercent/scale compose instead of three independent quickTo
+  // tweens clobbering each other's shared transform cache (previously the
+  // scale tween never rendered — live probe showed scale stuck at 1.0).
+  // overwrite:'auto' retargets the in-flight tween rather than stacking.
   const _zoom = new WeakMap();
   function bindSpotlight() {
     if (!HAS_GSAP || view === 'list') return;
@@ -1678,19 +1683,21 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
       const img = frame.querySelector('img');
       if (!img || _zoom.has(img)) return;
       img.style.transition = 'none'; // let GSAP own the transform
-      const xTo = gsap.quickTo(img, 'xPercent', { duration: 0.45, ease: 'power2.out' });
-      const yTo = gsap.quickTo(img, 'yPercent', { duration: 0.45, ease: 'power2.out' });
-      const sTo = gsap.quickTo(img, 'scale', { duration: 0.45, ease: 'power2.out' });
-      const zoom = { xTo, yTo, sTo };
-      _zoom.set(img, zoom);
+      _zoom.set(img, true);
       frame.addEventListener('mousemove', e => {
         const r = frame.getBoundingClientRect();
         const x = (e.clientX - r.left) / r.width - 0.5;
         const y = (e.clientY - r.top) / r.height - 0.5;
-        zoom.xTo(-x * 7); zoom.yTo(-y * 7); zoom.sTo(1.12);
+        gsap.to(img, {
+          xPercent: -x * 7, yPercent: -y * 7, scale: 1.12,
+          duration: 0.45, ease: 'power2.out', overwrite: 'auto'
+        });
       });
       frame.addEventListener('mouseleave', () => {
-        zoom.xTo(0); zoom.yTo(0); zoom.sTo(1);
+        gsap.to(img, {
+          xPercent: 0, yPercent: 0, scale: 1,
+          duration: 0.45, ease: 'power2.out', overwrite: 'auto'
+        });
       });
     });
   }
