@@ -1887,9 +1887,26 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
 
     if (flipTarget) {
       const imgWrap = wrap;
-      const state = Flip.getState(imgWrap);
-      Flip.fit(imgWrap, flipTarget, { scale: true, simple: true });
-      Flip.from(state, { duration: 0.6, ease: 'power3.inOut' });
+      // Deterministic blow-up: capture the image wrap's natural rect and the
+      // clicked frame's rect, stamp the wrap to the frame, then tween back to
+      // identity (its natural grid position). This is immune to the Flip-state
+      // capture mis-aligning on scrollable/portrait layouts (which left the
+      // preview stuck at the source card's size translated off-screen).
+      const wrapRect = imgWrap.getBoundingClientRect();
+      const frameRect = flipTarget.getBoundingClientRect();
+      gsap.set(imgWrap, {
+        transformOrigin: 'left top',
+        x: frameRect.left - wrapRect.left,
+        y: frameRect.top - wrapRect.top,
+        scaleX: frameRect.width / wrapRect.width,
+        scaleY: frameRect.height / wrapRect.height,
+      });
+      gsap.to(imgWrap, {
+        x: 0, y: 0, scaleX: 1, scaleY: 1,
+        duration: 0.6,
+        ease: 'power3.inOut',
+        clearProps: 'transform',
+      });
     }
 
     currentFavPlate = plate;
