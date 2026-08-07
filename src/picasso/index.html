@@ -890,17 +890,31 @@
     from { opacity: 0; transform: translateY(14px) scale(0.99); }
     to   { opacity: 1; transform: none; }
   }
+  /* ---------- Detail image: Fit view ----------
+     The screenshot is never cropped. object-fit: contain letterboxes the
+     whole image so it is fully visible at once, with a small gap at the top
+     so it doesn't crowd the pane edge. */
   .room-img-wrap {
+    position: relative;
     background: var(--surface-soft);
     border-radius: 16px 0 0 16px;
-    display: flex; align-items: flex-start;
     min-height: 320px;
     overflow: hidden;
+    padding-top: 8px;
+    display: flex;
   }
-  .room-img-wrap img {
+  .room-img-wrap .vm-stage {
     width: 100%; height: 100%;
-    object-fit: cover; object-position: top;
-    max-height: 92vh;
+    min-height: inherit;
+    display: flex;
+  }
+  .room-img-wrap .vm-stage img {
+    display: block;
+    margin: auto;
+    width: 100%; height: 100%;
+    object-fit: contain;
+    object-position: 50% 50%;
+    max-width: 100%; max-height: 100%;
   }
   .room-close {
     position: absolute; top: 20px; right: 20px; z-index: 5;
@@ -1085,8 +1099,9 @@
     .row { gap: 22px; }
     .how-grid { grid-template-columns: 1fr; gap: 26px; }
     .room { grid-template-columns: 1fr; }
-    .room-img-wrap { border-radius: 16px 16px 0 0; }
-    .room-img-wrap img { max-height: 40vh; }
+    .room-img-wrap { border-radius: 16px 16px 0 0; max-height: 56vh; }
+    .room-img-wrap .vm-stage { max-height: 56vh; }
+    .room-img-wrap .vm-stage img { max-height: 56vh; }
     .room-backdrop { padding: 20px; }
     .placard-full { padding: 28px 24px 24px; }
     .grid.list .work { grid-template-columns: 1fr; }
@@ -1202,7 +1217,9 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
     <button class="room-close" id="modalClose" aria-label="Close">
       <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
     </button>
-    <div class="room-img-wrap" id="modalImgWrap"><img id="modalImg" alt="Design preview" onerror="handleModalImgError(this)"></div>
+    <div class="room-img-wrap" id="modalImgWrap">
+      <div class="vm-stage" id="vmStage"><img id="modalImg" alt="Design preview" onerror="handleModalImgError(this)"></div>
+    </div>
     <article class="placard-full">
       <div class="p-head">
         <span class="p-no" id="modalNo"></span>
@@ -1841,11 +1858,12 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
       wrap.classList.remove('no-art');
       delete wrap.dataset.noArt;
       if (!document.getElementById('modalImg')) {
+        const stage = document.getElementById('vmStage');
         const img = document.createElement('img');
         img.id = 'modalImg';
         img.alt = 'Design preview';
         img.onerror = () => handleModalImgError(img);
-        wrap.prepend(img);
+        (stage || wrap).appendChild(img);
       }
     }
     document.getElementById('modalImg').src = 'screenshots/' + d.file;
@@ -1970,8 +1988,8 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with review, 
   });
 
   // Missing screenshot (e.g. seeded analysis whose artwork isn't shipped):
-  // swap the broken <img> for a quiet "artwork stays yours" ghost label.
-  function handleImgError(img) {
+    // swap the broken <img> for a quiet "artwork stays yours" ghost label.
+    function handleImgError(img) {
     const frame = img.closest('.frame');
     if (!frame || frame.dataset.noArt) return;
     frame.dataset.noArt = '1';
