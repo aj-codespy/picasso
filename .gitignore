@@ -38,3 +38,6 @@ __pycache__/
 .venv/
 *.log
 egg-info
+
+# Deployable gallery bundle (contains private screenshots — never commit)
+demo/
