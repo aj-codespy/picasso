@@ -48,7 +48,6 @@ picasso = [
     "data.js",
     "sync_data.py",
     "data/seed.json",
-    "data/library.json",
     "fonts/*.woff2",
     "vendor/*.js",
     "vendor/LICENSE",
@@ -62,6 +61,7 @@ picasso = [
     "screenshots/*.jpeg",
     "screenshots/*.webp",
     "meta.json",
+    "data/library.json",
     "data/*.backup.json",
     "data/*.corrupt-*",
 ]
