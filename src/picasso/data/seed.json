@@ -24,13 +24,36 @@
           "table",
           "tooltip"
         ],
-        "palette": "Light neutral background with dark charcoal text and subtle gray accents for interactive elements",
+        "palette": [
+          {
+            "hex": "#FFFFFF",
+            "name": "background",
+            "role": "background"
+          },
+          {
+            "hex": "#2D2D2D",
+            "name": "text",
+            "role": "text"
+          },
+          {
+            "hex": "#4CAF50",
+            "name": "accent",
+            "role": "accent"
+          }
+        ],
         "ideas": [
           "A project management tool for creative teams",
           "An internal document repository for a law firm",
           "A content management system for a media company"
         ],
-        "title": "A professional, corporate-oriented document management interface\u2026"
+        "title": "Document management system",
+        "layout": "sidebar + card grid",
+        "hero": "document overview section",
+        "typography": "bold sans serif headings on light body text",
+        "usage": [
+          "internal document tracking",
+          "client contract management"
+        ]
       }
     },
     {
@@ -54,13 +77,36 @@
           "illustration-heavy",
           "form"
         ],
-        "palette": "warm cream background with deep charcoal text and gold accent highlights",
+        "palette": [
+          {
+            "hex": "#FFFFFF",
+            "name": "background",
+            "role": "background"
+          },
+          {
+            "hex": "#000000",
+            "name": "text",
+            "role": "text"
+          },
+          {
+            "hex": "#4A90E2",
+            "name": "accent",
+            "role": "accent"
+          }
+        ],
         "ideas": [
           "AI-powered customer service interface",
           "Premium tech product landing page",
           "Futuristic dashboard design"
         ],
-        "title": "A sleek, modern landing page for\u2026"
+        "title": "AI Sales Agent Interface",
+        "layout": "hero card + footer grid",
+        "hero": "large scenic image with text overlay",
+        "typography": "bold serif hero on sans body",
+        "usage": [
+          "sales automation dashboard",
+          "AI customer service portal"
+        ]
       }
     },
     {
@@ -84,13 +130,35 @@
           "mobile-device-mockup",
           "form"
         ],
-        "palette": "Light background with dark text and accent colors, featuring a gradient from pink to blue",
+        "palette": [
+          {
+            "hex": "#FFFFFF",
+            "name": "background",
+            "role": "background"
+          },
+          {
+            "hex": "#000000",
+            "name": "text",
+            "role": "text"
+          },
+          {
+            "hex": "#4A4A4A",
+            "name": "accent",
+            "role": "accent"
+          }
+        ],
         "ideas": [
           "A financial dashboard for small businesses",
           "A mobile app for expense tracking",
           "A corporate training platform for fleet management"
         ],
-        "title": "A clean, modern landing page for\u2026"
+        "title": "Fleet spending control",
+        "layout": "horizontal nav + centered hero + card",
+        "hero": "bold headline with subtext and button",
+        "typography": "bold sans serif headline on sans serif body",
+        "usage": [
+          "corporate fleet management dashboard"
+        ]
       }
     },
     {
@@ -115,13 +183,36 @@
           "stats",
           "logo"
         ],
-        "palette": "White background with blue and black accents, featuring a gradient blue pattern on the right side.",
+        "palette": [
+          {
+            "hex": "#FFFFFF",
+            "name": "background",
+            "role": "background"
+          },
+          {
+            "hex": "#000000",
+            "name": "text",
+            "role": "text"
+          },
+          {
+            "hex": "#007BFF",
+            "name": "accent",
+            "role": "accent"
+          }
+        ],
         "ideas": [
           "A dashboard for financial analytics tools",
           "An interface for an AI-driven marketing platform",
           "A prototype for a cloud-based revenue management system"
         ],
-        "title": "A clean and modern landing page\u2026"
+        "title": "Revenue intelligence dashboard",
+        "layout": "full-width card",
+        "hero": "bold headline with subtext",
+        "typography": "bold sans serif headline on light sans serif body",
+        "usage": [
+          "SaaS product landing page",
+          "Analytics platform interface"
+        ]
       }
     },
     {
@@ -148,13 +239,36 @@
           "modal",
           "search-bar"
         ],
-        "palette": "White background with black text, blue accents, and a touch of gold for trust indicators.",
+        "palette": [
+          {
+            "hex": "#FFFFFF",
+            "name": "background",
+            "role": "background"
+          },
+          {
+            "hex": "#000000",
+            "name": "text",
+            "role": "text"
+          },
+          {
+            "hex": "#007BFF",
+            "name": "accent",
+            "role": "accent"
+          }
+        ],
         "ideas": [
           "An AI-powered task manager",
           "A smart meeting room booking system",
           "An automated personal assistant app"
         ],
-        "title": "A clean, tech-oriented landing page for\u2026"
+        "title": "AI-Powered Meeting Scheduler",
+        "layout": "centered hero + sidebar + calendar grid",
+        "hero": "bold headline with AI scheduling message",
+        "typography": "bold sans-serif headline on clean sans body",
+        "usage": [
+          "corporate meeting planner",
+          "team scheduling dashboard"
+        ]
       }
     },
     {
@@ -184,13 +298,36 @@
           "search-bar",
           "logo"
         ],
-        "palette": "warm cream background with deep charcoal text and burnt-orange accent",
+        "palette": [
+          {
+            "hex": "#FFFFFF",
+            "name": "background",
+            "role": "background"
+          },
+          {
+            "hex": "#2D2D2D",
+            "name": "text",
+            "role": "text"
+          },
+          {
+            "hex": "#FF6B6B",
+            "name": "accent",
+            "role": "accent"
+          }
+        ],
         "ideas": [
           "A project management tool for remote teams",
           "An analytics platform for business insights",
           "A scheduling app for professionals"
         ],
-        "title": "A clean and modern SaaS dashboard\u2026"
+        "title": "Task management dashboard",
+        "layout": "sidebar + card grid",
+        "hero": "Featured workflow overview",
+        "typography": "Bold sans serif headings on clean sans body",
+        "usage": [
+          "Team productivity tracking",
+          "Personal project organization"
+        ]
       }
     },
     {
@@ -216,13 +353,36 @@
           "footer",
           "logo"
         ],
-        "palette": "warm cream background with deep charcoal text and burnt-orange accent",
+        "palette": [
+          {
+            "hex": "#FFFFFF",
+            "name": "background",
+            "role": "background"
+          },
+          {
+            "hex": "#000000",
+            "name": "text",
+            "role": "text"
+          },
+          {
+            "hex": "#FF5733",
+            "name": "accent",
+            "role": "accent"
+          }
+        ],
         "ideas": [
           "A project management tool interface",
           "An online course platform homepage",
           "A productivity app's onboarding screen"
         ],
-        "title": "A clean, corporate SaaS landing page\u2026"
+        "title": "Streamlined scheduling platform",
+        "layout": "full-width card grid",
+        "hero": "heroic testimonials section",
+        "typography": "bold sans-serif headings on clean sans body",
+        "usage": [
+          "project management tool interface",
+          "team collaboration dashboard"
+        ]
       }
     },
     {
@@ -251,13 +411,36 @@
           "card-grid",
           "modal"
         ],
-        "palette": "Light blue sky background with white clouds, dark blue and black accents, and vibrant orange and blue charts",
+        "palette": [
+          {
+            "hex": "#E0F7FA",
+            "name": "background",
+            "role": "background"
+          },
+          {
+            "hex": "#2D3748",
+            "name": "text",
+            "role": "text"
+          },
+          {
+            "hex": "#FF6B6B",
+            "name": "accent",
+            "role": "accent"
+          }
+        ],
         "ideas": [
           "AI analytics platform for small businesses",
           "Customer engagement dashboard for marketing agencies",
           "Real-time data visualization tool for tech startups"
         ],
-        "title": "A clean, tech-oriented dashboard interface designed\u2026"
+        "title": "AI Business Dashboard",
+        "layout": "central card with sidebar",
+        "hero": "sky background with bold headline",
+        "typography": "bold sans-serif headline on clean body text",
+        "usage": [
+          "customer analytics overview",
+          "sales performance tracking"
+        ]
       }
     },
     {
@@ -284,13 +467,36 @@
           "table",
           "search-bar"
         ],
-        "palette": "Light gray background with white cards, green accents, and dark charcoal text",
+        "palette": [
+          {
+            "hex": "#FFFFFF",
+            "name": "background",
+            "role": "background"
+          },
+          {
+            "hex": "#000000",
+            "name": "text",
+            "role": "text"
+          },
+          {
+            "hex": "#4CAF50",
+            "name": "accent",
+            "role": "accent"
+          }
+        ],
         "ideas": [
           "Sales performance tracking for a SaaS product",
           "Corporate analytics dashboard for internal reporting",
           "E-commerce revenue overview for a tech startup"
         ],
-        "title": "A clean, corporate SaaS dashboard with\u2026"
+        "title": "Sales dashboard",
+        "layout": "sidebar + card grid",
+        "hero": "sales overview summary",
+        "typography": "bold sans hero on sans body",
+        "usage": [
+          "sales performance tracking",
+          "revenue reporting"
+        ]
       }
     },
     {
@@ -315,13 +521,36 @@
           "form",
           "dashboard-chart"
         ],
-        "palette": "Light neutral background with dark charcoal text and subtle gold accents for highlights",
+        "palette": [
+          {
+            "hex": "#FFFFFF",
+            "name": "background",
+            "role": "background"
+          },
+          {
+            "hex": "#000000",
+            "name": "text",
+            "role": "text"
+          },
+          {
+            "hex": "#FF6B6B",
+            "name": "accent",
+            "role": "accent"
+          }
+        ],
         "ideas": [
           "A global payment platform for freelancers",
           "An AI-powered financial advisor app",
           "A luxury banking service for high-net-worth individuals"
         ],
-        "title": "A clean, modern banking interface emphasizing\u2026"
+        "title": "Modern banking dashboard",
+        "layout": "card grid with sidebar",
+        "hero": "Feature-focused headline section",
+        "typography": "Bold sans-serif headlines on light body text",
+        "usage": [
+          "Financial app interface",
+          "Banking website homepage"
+        ]
       }
     },
     {
@@ -344,13 +573,36 @@
           "CTA-button",
           "logo"
         ],
-        "palette": "Gradient from warm coral to deep purple with white text and black accents",
+        "palette": [
+          {
+            "hex": "#FF6B6B",
+            "name": "background",
+            "role": "background"
+          },
+          {
+            "hex": "#FFFFFF",
+            "name": "text",
+            "role": "text"
+          },
+          {
+            "hex": "#4B0082",
+            "name": "accent",
+            "role": "accent"
+          }
+        ],
         "ideas": [
           "Tech startup homepage",
           "Creative agency portfolio",
           "Digital product launch site"
         ],
-        "title": "A sleek, modern landing page with\u2026"
+        "title": "Vibrant brand design platform",
+        "layout": "horizontal header + centered hero + footer",
+        "hero": "large gradient background with bold text",
+        "typography": "bold sans-serif headline on dark background",
+        "usage": [
+          "branding agency website",
+          "creative portfolio showcase"
+        ]
       }
     },
     {
@@ -374,13 +626,36 @@
           "logo",
           "product-gallery"
         ],
-        "palette": "Warm orange and brown tones with white text and dark accents, evoking a Martian landscape and high-tech feel.",
+        "palette": [
+          {
+            "hex": "#F5F5DC",
+            "name": "background",
+            "role": "background"
+          },
+          {
+            "hex": "#FFFFFF",
+            "name": "text",
+            "role": "text"
+          },
+          {
+            "hex": "#8B4513",
+            "name": "accent",
+            "role": "accent"
+          }
+        ],
         "ideas": [
           "Space tourism website",
           "Sci-fi themed app interface",
           "Innovative tech product landing page"
         ],
-        "title": "Futuristic and tech-oriented design with a\u2026"
+        "title": "Space travel booking platform",
+        "layout": "full-screen hero + card grid",
+        "hero": "large scenic background with overlay text",
+        "typography": "bold sans-serif hero on serif body",
+        "usage": [
+          "Corporate travel booking",
+          "Adventure planning platform"
+        ]
       }
     },
     {
@@ -404,13 +679,36 @@
           "illustration-heavy",
           "form"
         ],
-        "palette": "warm cream background with deep charcoal text and burnt-orange accent",
+        "palette": [
+          {
+            "hex": "#FFFFFF",
+            "name": "background",
+            "role": "background"
+          },
+          {
+            "hex": "#2D2D2D",
+            "name": "text",
+            "role": "text"
+          },
+          {
+            "hex": "#FFD700",
+            "name": "accent",
+            "role": "accent"
+          }
+        ],
         "ideas": [
           "A wellness app interface",
           "An eco-friendly product website",
           "A meditation and mindfulness platform"
         ],
-        "title": "A serene and inviting landing page\u2026"
+        "title": "Nature retreat finder",
+        "layout": "full-screen hero + card grid",
+        "hero": "mountain landscape with call-to-action",
+        "typography": "bold serif headline on sans-serif body",
+        "usage": [
+          "travel app destination selector",
+          "wellness retreat platform"
+        ]
       }
     },
     {
@@ -437,13 +735,36 @@
           "avatar",
           "modal"
         ],
-        "palette": "Light gray background with black and dark gray text, accented by vibrant blue and green elements.",
+        "palette": [
+          {
+            "hex": "#F5F5F5",
+            "name": "background",
+            "role": "background"
+          },
+          {
+            "hex": "#2D2D2D",
+            "name": "text",
+            "role": "text"
+          },
+          {
+            "hex": "#007AFF",
+            "name": "accent",
+            "role": "accent"
+          }
+        ],
         "ideas": [
           "An AI-driven project management tool",
           "A customer service automation dashboard",
           "An enterprise workflow optimization platform"
         ],
-        "title": "A clean, tech-oriented UI for an\u2026"
+        "title": "AI-powered automation dashboard",
+        "layout": "hero section + dual card layout",
+        "hero": "bold headline with subtext and buttons",
+        "typography": "bold sans-serif headline on sans-serif body",
+        "usage": [
+          "enterprise workflow monitoring",
+          "AI agent interaction tracking"
+        ]
       }
     },
     {
@@ -472,13 +793,36 @@
           "card-grid",
           "stats"
         ],
-        "palette": "Light neutral background with dark charcoal text, accented by vibrant orange and green elements.",
+        "palette": [
+          {
+            "hex": "#FFFFFF",
+            "name": "background",
+            "role": "background"
+          },
+          {
+            "hex": "#000000",
+            "name": "text",
+            "role": "text"
+          },
+          {
+            "hex": "#2E8B57",
+            "name": "accent",
+            "role": "accent"
+          }
+        ],
         "ideas": [
           "A project management tool for remote teams",
           "An AI-powered marketing automation suite",
           "A developer platform for integrating machine learning models"
         ],
-        "title": "A clean, tech-focused landing page for\u2026"
+        "title": "Automated workflow platform",
+        "layout": "hero section + dashboard preview",
+        "hero": "bold headline with subtext and call-to-action",
+        "typography": "bold sans-serif headline, light sans-serif body",
+        "usage": [
+          "SaaS product landing page",
+          "Workflow management dashboard"
+        ]
       }
     },
     {
@@ -504,13 +848,36 @@
           "chat-widget",
           "logo"
         ],
-        "palette": "Soft green gradients with white backgrounds and dark text, accented with bright yellow for CTAs",
+        "palette": [
+          {
+            "hex": "#2E8B57",
+            "name": "background",
+            "role": "background"
+          },
+          {
+            "hex": "#FFFFFF",
+            "name": "text",
+            "role": "text"
+          },
+          {
+            "hex": "#FFD700",
+            "name": "accent",
+            "role": "accent"
+          }
+        ],
         "ideas": [
           "AI-powered productivity tool interface",
           "Eco-friendly tech startup landing page",
           "Smart analytics dashboard for business insights"
         ],
-        "title": "A clean, modern SaaS dashboard interface\u2026"
+        "title": "AI Workflow Simplifier",
+        "layout": "sidebar + dashboard",
+        "hero": "scenic landscape with overlay text",
+        "typography": "bold sans-serif headline, light sans body",
+        "usage": [
+          "productivity app dashboard",
+          "AI workflow management"
+        ]
       }
     },
     {
@@ -533,13 +900,36 @@
           "CTA-button",
           "form"
         ],
-        "palette": "White background with black text and a dark charcoal button for contrast",
+        "palette": [
+          {
+            "hex": "#FFFFFF",
+            "name": "background",
+            "role": "background"
+          },
+          {
+            "hex": "#000000",
+            "name": "text",
+            "role": "text"
+          },
+          {
+            "hex": "#2D2D2D",
+            "name": "accent",
+            "role": "accent"
+          }
+        ],
         "ideas": [
           "A platform for freelance tech professionals",
           "An educational course on building real-world projects",
           "A community for verified project builders"
         ],
-        "title": "A minimalist landing page design focused\u2026"
+        "title": "Builders recruitment platform",
+        "layout": "header + hero + footer",
+        "hero": "Large bold text with subtext",
+        "typography": "Bold sans-serif hero, light sans body",
+        "usage": [
+          "Tech startup hiring page",
+          "Freelancer portfolio showcase"
+        ]
       }
     },
     {
@@ -564,13 +954,36 @@
           "avatar",
           "badge"
         ],
-        "palette": "Light gray background with black and orange text accents, featuring a blue highlight for branding elements",
+        "palette": [
+          {
+            "hex": "#FFFFFF",
+            "name": "background",
+            "role": "background"
+          },
+          {
+            "hex": "#000000",
+            "name": "text",
+            "role": "text"
+          },
+          {
+            "hex": "#FF0000",
+            "name": "accent",
+            "role": "accent"
+          }
+        ],
         "ideas": [
           "Tech talent recruitment platform",
           "SaaS product marketing page",
           "Corporate portfolio website"
         ],
-        "title": "A clean, corporate landing page design\u2026"
+        "title": "Builder recruitment platform",
+        "layout": "sidebar + card grid",
+        "hero": "bold headline with subtext",
+        "typography": "bold sans hero on sans body",
+        "usage": [
+          "Tech job board",
+          "Freelancer showcase"
+        ]
       }
     },
     {
@@ -594,13 +1007,36 @@
           "CTA-button",
           "illustration"
         ],
-        "palette": "White background with black text and gold accents",
+        "palette": [
+          {
+            "hex": "#FFFFFF",
+            "name": "background",
+            "role": "background"
+          },
+          {
+            "hex": "#000000",
+            "name": "text",
+            "role": "text"
+          },
+          {
+            "hex": "#FFA500",
+            "name": "accent",
+            "role": "accent"
+          }
+        ],
         "ideas": [
           "A platform for freelance developers to showcase portfolios",
           "A community hub for tech event organizers",
           "An educational resource for aspiring coders"
         ],
-        "title": "A clean, corporate design focused on\u2026"
+        "title": "Builder showcase platform",
+        "layout": "hero section + card grid",
+        "hero": "bold headline with subtext and call-to-action",
+        "typography": "bold sans-serif headline on clean sans body",
+        "usage": [
+          "Tech startup landing page",
+          "Freelancer portfolio showcase"
+        ]
       }
     },
     {
@@ -625,13 +1061,36 @@
           "logo",
           "illustration-heavy"
         ],
-        "palette": "Deep navy background with white text, gold-accent logo, and warm earthy tones in the illustration",
+        "palette": [
+          {
+            "hex": "#0A1A2A",
+            "name": "background",
+            "role": "background"
+          },
+          {
+            "hex": "#FFFFFF",
+            "name": "text",
+            "role": "text"
+          },
+          {
+            "hex": "#FF6B6B",
+            "name": "accent",
+            "role": "accent"
+          }
+        ],
         "ideas": [
           "AI project management dashboard",
           "Automation workflow builder",
           "Tech startup pitch deck template"
         ],
-        "title": "A tech-focused landing page with a\u2026"
+        "title": "AI agent control dashboard",
+        "layout": "full-width hero + card grid",
+        "hero": "large text with abstract illustration",
+        "typography": "bold serif headline on sans-serif body",
+        "usage": [
+          "internal analytics dashboard",
+          "AI workflow management"
+        ]
       }
     }
   ]
