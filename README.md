@@ -127,11 +127,15 @@ a library that already has works unless you pass `--force`.
 
 - **Wall view** — works hang in rows; hovering a work focuses it with a
   cursor-tracked zoom and a soft spotlight (transform-only — zero layout
-  shift). Click a work to enter its viewing room via a FLIP blow-up animation.
+  shift, and fine-pointer devices only so touch never fakes a hover).
+  Click a work to enter its viewing room with a smooth scale-up reveal.
 - **Viewing room** — full-size detail with catalogue number, ink placard,
-  description, components, palette swatches, typography, use cases, and ideas.
-  Navigate with `←` / `→` or the room nav; close with `Esc`. Deep-link any
-  work: `#design-07`.
+  description, components, palette swatches, typography, use cases, and
+  ideas. The screenshot is shown in **Fit view**: scaled with
+  `object-fit: contain` so the entire image is always visible, never
+  cropped, starting just below the top of the pane. Navigate with `←` /
+  `→` or the room nav; close with `Esc` or the room's close button.
+  Deep-link any work: `#design-07`.
 - **Browse by vocabulary** — every analyzed tag becomes a filter chip with
   counts; **browse by structure** — the component taxonomy (Navigation,
   Content, Interaction, Data, Identity) filters OR-within, AND-across tags
@@ -145,10 +149,13 @@ a library that already has works unless you pass `--force`.
 - **Marquee** — the tag cloud scrolls by and pauses on hover; the whole
   gallery respects `prefers-reduced-motion`.
 - **Motion system** — GSAP (vendored locally, no CDN) powers the spotlight,
-  scroll-row hang, FLIP modal, hero word-split entrance, chip cascade, and a
+  scroll-row hang, modal reveal, hero word-split entrance, chip cascade, and a
   pinned How-it-works reveal — with a film-grain finish and gallery
-  baseboard. Falls back to a fully-static, animated gallery if GSAP is absent
-  or reduced motion is on.
+  baseboard. Hover motion is gated to fine pointers, the viewing-room
+  backdrop fades in step with the room, and saving a favorite gives the
+  star a quick pop. Falls back to a fully-static gallery if GSAP is
+  absent or reduced motion is on; `prefers-reduced-motion` still gets
+  the gentle static version.
 
 ## Project layout
 
